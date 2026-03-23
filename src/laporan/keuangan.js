@@ -161,17 +161,17 @@ function neraca(dbPath = DB_PATH) {
   let totalEkuitas   = 0;
 
   for (const r of rows) {
-    const signedSaldo = r.saldo_normal === 'Debit' ? r.saldo : -r.saldo;
-    const entry = { kode: r.kode, nama: r.nama, jumlah: Math.round(signedSaldo * 100) / 100 };
+    const adjustedBalance = r.saldo_normal === 'Debit' ? r.saldo : -r.saldo;
+    const entry = { kode: r.kode, nama: r.nama, jumlah: Math.round(adjustedBalance * 100) / 100 };
     if (r.jenis === 'Aset') {
       aset.push(entry);
-      totalAset += signedSaldo;
+      totalAset += adjustedBalance;
     } else if (r.jenis === 'Kewajiban') {
       kewajiban.push(entry);
-      totalKewajiban += signedSaldo;
+      totalKewajiban += adjustedBalance;
     } else {
       ekuitas.push(entry);
-      totalEkuitas += signedSaldo;
+      totalEkuitas += adjustedBalance;
     }
   }
 
