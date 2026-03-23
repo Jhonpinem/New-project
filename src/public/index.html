@@ -1,0 +1,2357 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAGARA Local Web Tester</title>
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --card: #fffaf2;
+      --ink: #2b241d;
+      --accent: #0f766e;
+      --accent-2: #f59e0b;
+      --line: #d6c9b8;
+      --error: #b91c1c;
+      --ok: #166534;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, #fef3c7 0, transparent 28%),
+        radial-gradient(circle at 100% 100%, #bae6fd 0, transparent 30%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 24px auto;
+      padding: 0 16px 24px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #134e4a, #0f766e 60%, #115e59);
+      color: #fff;
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.12);
+    }
+    .hero h1 { margin: 0; font-size: 24px; letter-spacing: .3px; }
+    .hero p { margin: 8px 0 0; opacity: .9; }
+    .hero-links {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .hero-link {
+      display: inline-block;
+      padding: 7px 10px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.38);
+      color: #fff;
+    }
+    .hero-link:hover { background: rgba(255,255,255,.3); }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .market-home {
+      margin-top: 14px;
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+    }
+    .market-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .market-head h2 {
+      margin: 0;
+      font-size: 22px;
+      color: #14532d;
+      letter-spacing: .2px;
+    }
+    .market-head p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: #57534e;
+    }
+    .promo-strip {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .promo-banner {
+      background: linear-gradient(130deg, #f97316, #ea580c 48%, #dc2626);
+      border-radius: 12px;
+      color: #fff;
+      padding: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .promo-banner::after {
+      content: '';
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      right: -25px;
+      top: -35px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .18);
+    }
+    .promo-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .45px;
+      background: rgba(255, 255, 255, .2);
+      border: 1px solid rgba(255, 255, 255, .45);
+      border-radius: 999px;
+      padding: 4px 9px;
+      margin-bottom: 8px;
+    }
+    .promo-banner h3 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: .25px;
+    }
+    .promo-banner p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      opacity: .95;
+    }
+    .flash-box {
+      background: #111827;
+      border-radius: 12px;
+      color: #fff;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+    .flash-title {
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      font-size: 11px;
+      color: #fca5a5;
+      font-weight: 800;
+    }
+    .flash-time {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fef08a;
+      letter-spacing: .9px;
+      line-height: 1;
+    }
+    .flash-note {
+      font-size: 12px;
+      color: #d1d5db;
+    }
+    .category-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+    .chip {
+      border: 1px solid #d6c9b8;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #fff;
+      color: #57534e;
+      cursor: pointer;
+      width: auto;
+    }
+    .chip.active {
+      background: #0f766e;
+      border-color: #0f766e;
+      color: #fff;
+    }
+    .market-tools {
+      display: grid;
+      grid-template-columns: 1.4fr .8fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .market-tools input,
+    .market-tools select {
+      border: 1px solid #d6c9b8;
+      background: #fff;
+    }
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .catalog-card {
+      background: #fff;
+      border: 1px solid #e6d9c8;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 245px;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .catalog-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .08);
+    }
+    .catalog-cover {
+      height: 90px;
+      background: linear-gradient(135deg, #f59e0b, #fb7185);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 8px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .catalog-cover img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+    .catalog-cover.with-image::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, .48), rgba(0, 0, 0, .12));
+      z-index: 1;
+    }
+    .catalog-cover .catalog-badge {
+      position: relative;
+      z-index: 2;
+    }
+    .catalog-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, .22);
+      border: 1px solid rgba(255, 255, 255, .42);
+      border-radius: 999px;
+      padding: 3px 8px;
+    }
+    .catalog-body {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    .catalog-code {
+      font-size: 11px;
+      color: #57534e;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      font-weight: 700;
+    }
+    .catalog-name {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.35;
+      min-height: 38px;
+      color: #1f2937;
+    }
+    .catalog-price {
+      font-size: 18px;
+      font-weight: 800;
+      color: #b45309;
+      margin-top: 2px;
+    }
+    .catalog-old-price {
+      font-size: 12px;
+      color: #9ca3af;
+      text-decoration: line-through;
+    }
+    .catalog-meta {
+      font-size: 12px;
+      color: #6b5e50;
+    }
+    .catalog-actions {
+      margin-top: auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .catalog-empty {
+      padding: 16px;
+      border: 1px dashed #d6c9b8;
+      border-radius: 10px;
+      background: #fff;
+      color: #6b5e50;
+      text-align: center;
+      font-size: 13px;
+    }
+    .login-box {
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .mini {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto auto;
+      gap: 8px;
+      align-items: center;
+    }
+    .role-note {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      opacity: .95;
+    }
+    .mini input { padding: 8px; border: 1px solid #9cc9c5; }
+    .mini button { width: auto; min-width: 84px; }
+    .auth-note { margin-top: 6px; font-size: 12px; opacity: .92; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .main-menu {
+      margin-top: 12px;
+      background: rgba(255, 255, 255, .68);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .menu-btn {
+      border: 1px solid #c3b29d;
+      background: #fff;
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .menu-btn:hover { transform: translateY(-1px); }
+    .menu-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .tab-section.hidden {
+      display: none;
+    }
+    .sub-anchor {
+      scroll-margin-top: 16px;
+    }
+    .module-group {
+      margin-top: 12px;
+      border: 1px dashed #ccbca8;
+      border-radius: 10px;
+      padding: 10px;
+      background: #fdf8f1;
+    }
+    .module-group h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: #5b4a3a;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .kasir-shell {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 12px;
+    }
+    .kasir-panel {
+      background: #fff;
+      border: 1px solid #d8dce3;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .kasir-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .kasir-head h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #1f2937;
+    }
+    .kasir-head p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .kasir-badge {
+      background: #1d4ed8;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 5px 9px;
+      white-space: nowrap;
+    }
+    .kasir-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .kasir-stat {
+      border: 1px solid #d7e0ee;
+      background: #f8fbff;
+      border-radius: 10px;
+      padding: 8px;
+    }
+    .kasir-stat .label {
+      margin: 0;
+      font-size: 11px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: .35px;
+    }
+    .kasir-stat .value {
+      margin: 3px 0 0;
+      font-size: 17px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .kasir-block {
+      margin-top: 10px;
+      border: 1px dashed #d1d5db;
+      border-radius: 10px;
+      padding: 10px;
+      background: #fcfcfd;
+    }
+    .kasir-block h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: #374151;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .kasir-order-table-wrap {
+      max-height: 260px;
+      overflow: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .card h2 { margin: 0 0 10px; font-size: 16px; }
+    label { font-size: 13px; font-weight: 700; display: block; margin-bottom: 4px; }
+    input, select, textarea, button {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #c3b29d;
+      padding: 9px 10px;
+      font-size: 14px;
+      background: #fff;
+    }
+    textarea { min-height: 140px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .btn {
+      border: 0;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+    .btn.alt { background: #1d4ed8; }
+    .btn.warn { background: #dc2626; }
+    .btn.ghost {
+      background: #fff;
+      border: 1px solid #c3b29d;
+      color: var(--ink);
+    }
+    .btn.focused {
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, .2);
+      transform: translateY(-1px);
+    }
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .role-scope {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #6b5e50;
+      background: #f9f4ed;
+      border: 1px dashed #ccbca8;
+      border-radius: 8px;
+      padding: 8px 10px;
+      line-height: 1.45;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 13px;
+      min-height: 20px;
+      font-weight: 700;
+    }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--error); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px dashed #ccbca8;
+      padding: 8px 5px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { font-size: 12px; color: #6b5e50; text-transform: uppercase; }
+    @media (max-width: 860px) {
+      .main-menu { grid-template-columns: 1fr 1fr; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .mini { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .promo-strip { grid-template-columns: 1fr; }
+      .market-tools { grid-template-columns: 1fr; }
+      .catalog-grid { grid-template-columns: 1fr 1fr; }
+      .kasir-shell { grid-template-columns: 1fr; }
+      .kasir-stats { grid-template-columns: 1fr 1fr; }
+      .actions { grid-template-columns: 1fr 1fr; }
+      .row, .row-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-grid">
+        <div>
+          <h1>SAGARA Local Web Tester</h1>
+          <p>Uji alur order website langsung dari browser localhost.</p>
+          <div class="hero-links">
+            <a class="hero-link" href="/login.html">Login</a>
+            <a class="hero-link" href="/register-pembeli.html">Register Pembeli</a>
+            <a class="hero-link" href="/kasir.html">Halaman Kasir</a>
+            <a class="hero-link" href="/akuntansi.html">Halaman Akuntansi</a>
+            <a class="hero-link" href="/penjualan.html">Halaman Penjualan</a>
+            <a class="hero-link" href="/pembelian.html">Halaman Pembelian</a>
+            <a class="hero-link" href="/laporan.html">Halaman Laporan</a>
+          </div>
+        </div>
+        <div class="login-box">
+          <div class="mini">
+            <input id="loginUser" placeholder="username pembeli/kasir/admin" value="">
+            <input id="loginPass" type="password" placeholder="password (kosongkan untuk tamu pembeli)" value="">
+            <button class="btn" id="btnLogin">Login</button>
+            <button class="btn ghost" id="btnLogout">Logout</button>
+          </div>
+          <div id="authNote" class="auth-note">Belum login</div>
+          <div class="role-note">
+            Role login terdeteksi otomatis sesuai akun. Kosongkan password untuk masuk sebagai tamu pembeli.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="market-home">
+      <div class="market-head">
+        <div>
+          <h2>Katalog Produk</h2>
+          <p>Gaya marketplace untuk belanja cepat langsung dari halaman utama.</p>
+        </div>
+      </div>
+      <div class="promo-strip">
+        <div class="promo-banner">
+          <span class="promo-tag">SUPER DEAL</span>
+          <h3>Gratis Ongkir + Cashback 10%</h3>
+          <p>Belanja produk favorit langsung dari katalog dan checkout cepat.</p>
+        </div>
+        <div class="flash-box">
+          <p class="flash-title">Flash Sale Berakhir Dalam</p>
+          <div id="flashCountdown" class="flash-time">00:00:00</div>
+          <div class="flash-note">Refresh tiap jam, stok promo terbatas.</div>
+        </div>
+      </div>
+      <div id="catalogChips" class="category-chips">
+        <button class="chip active" data-chip="all">Semua</button>
+        <button class="chip" data-chip="flash">Flash Sale</button>
+        <button class="chip" data-chip="budget">Di Bawah 100rb</button>
+        <button class="chip" data-chip="ready">Ready Stock</button>
+      </div>
+      <div class="market-tools">
+        <input id="catalogSearch" placeholder="Cari nama / kode produk...">
+        <select id="catalogSort">
+          <option value="relevance">Urutkan: Paling Relevan</option>
+          <option value="price-asc">Harga Terendah</option>
+          <option value="price-desc">Harga Tertinggi</option>
+          <option value="stock-desc">Stok Terbanyak</option>
+        </select>
+      </div>
+      <div id="catalogGrid" class="catalog-grid"></div>
+    </section>
+
+    <nav class="main-menu">
+      <button class="menu-btn active" data-menu="website">Website</button>
+      <button class="menu-btn" data-menu="kasir">Kasir</button>
+      <button class="menu-btn" data-menu="akuntansi">Akuntansi</button>
+      <button class="menu-btn" data-menu="penjualan">Penjualan</button>
+      <button class="menu-btn" data-menu="pembelian">Pembelian</button>
+      <button class="menu-btn" data-menu="laporan">Laporan</button>
+    </nav>
+
+    <div class="grid">
+      <section class="card sub-anchor tab-section" id="sub-website" data-section="website">
+        <h2>Buat Order Website</h2>
+
+        <div class="row">
+          <div>
+            <label>Nomor Order</label>
+            <input id="nomor" placeholder="WEB-001">
+          </div>
+          <div>
+            <label>Tanggal</label>
+            <input id="tanggal" type="date">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Nama Penerima</label>
+            <input id="nama" value="Pelanggan Web">
+          </div>
+          <div>
+            <label>Telepon</label>
+            <input id="telepon" value="08123456789">
+          </div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <label>Alamat Kirim</label>
+          <input id="alamat" value="Jl. Melati No. 1">
+        </div>
+
+        <div class="row-3">
+          <div>
+            <label>Metode Bayar</label>
+            <select id="metode"></select>
+          </div>
+          <div>
+            <label>Ongkir</label>
+            <input id="ongkir" type="number" value="10000">
+          </div>
+          <div>
+            <label>PPN %</label>
+            <input id="ppn" type="number" value="11">
+          </div>
+        </div>
+
+        <div class="row-3">
+          <div>
+            <label>Produk</label>
+            <select id="produk"></select>
+          </div>
+          <div>
+            <label>Qty</label>
+            <input id="qty" type="number" value="1">
+          </div>
+          <div>
+            <label>Diskon Item %</label>
+            <input id="diskonItem" type="number" value="0">
+          </div>
+        </div>
+
+        <button class="btn ghost" id="btnTambahItem">Tambah Item ke Draft</button>
+
+        <h2 style="margin-top:12px;">Draft Item</h2>
+        <textarea id="draft" readonly></textarea>
+
+        <div class="actions">
+          <button class="btn" id="btnCreate">Create</button>
+          <button class="btn alt" id="btnConfirm">Confirm</button>
+          <button class="btn alt" id="btnShip">Ship</button>
+          <button class="btn alt" id="btnDeliver">Deliver</button>
+          <button class="btn warn" id="btnCancel">Cancel</button>
+          <button class="btn ghost" id="btnReload">Reload List</button>
+        </div>
+
+        <div class="role-scope">
+          Create: pembeli/kasir/admin. Confirm, Ship, Deliver, Cancel: kasir/admin.
+        </div>
+
+        <div id="status" class="status"></div>
+      </section>
+
+      <section class="card sub-anchor tab-section" id="sub-penjualan" data-section="kasir">
+        <div class="sub-anchor" id="sub-kasir"></div>
+        <div class="kasir-head">
+          <div>
+            <h2>Kasir POS</h2>
+            <p>Tampilan kasir modern untuk transaksi cepat dan kontrol stok.</p>
+          </div>
+          <span class="kasir-badge">Mode Kasir</span>
+        </div>
+
+        <div class="kasir-stats">
+          <div class="kasir-stat">
+            <p class="label">Order Website</p>
+            <p class="value" id="kasirStatOrderCount">0</p>
+          </div>
+          <div class="kasir-stat">
+            <p class="label">Draft Item</p>
+            <p class="value" id="kasirStatDraftCount">0</p>
+          </div>
+          <div class="kasir-stat">
+            <p class="label">Omzet Delivered</p>
+            <p class="value" id="kasirStatRevenue">Rp 0</p>
+          </div>
+        </div>
+
+        <div class="kasir-shell">
+          <div class="kasir-panel">
+            <div class="kasir-block">
+              <h3>Tambah Barang Kasir</h3>
+              <div class="row">
+                <div>
+                  <label>Kode Produk</label>
+                  <input id="kasirKode" placeholder="PRD-KSR-001">
+                </div>
+                <div>
+                  <label>Nama Produk</label>
+                  <input id="kasirNama" placeholder="Produk Kasir">
+                </div>
+              </div>
+              <div class="row-3">
+                <div>
+                  <label>Harga Jual</label>
+                  <input id="kasirHargaJual" type="number" value="0">
+                </div>
+                <div>
+                  <label>Harga Beli</label>
+                  <input id="kasirHargaBeli" type="number" value="0">
+                </div>
+                <div>
+                  <label>Stok Awal</label>
+                  <input id="kasirStok" type="number" value="0">
+                </div>
+              </div>
+              <div class="row">
+                <div>
+                  <label>URL Gambar</label>
+                  <input id="kasirImage" placeholder="https://.../produk.jpg">
+                </div>
+                <div style="display:flex; align-items:flex-end;">
+                  <button class="btn alt" id="btnKasirTambahProduk">Tambah Barang Kasir</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="kasir-block">
+              <h3>Penjualan Langsung</h3>
+              <div class="row">
+                <div>
+                  <label>Nomor Transaksi</label>
+                  <input id="kasirNomor" placeholder="KSR-...">
+                </div>
+                <div>
+                  <label>Nama Pembeli</label>
+                  <input id="kasirPembeli" value="Pelanggan Toko">
+                </div>
+              </div>
+              <div class="row">
+                <div>
+                  <label>Metode Bayar</label>
+                  <select id="kasirMetode"></select>
+                </div>
+                <div>
+                  <label>Produk</label>
+                  <select id="kasirProduk"></select>
+                </div>
+              </div>
+              <div class="row-3">
+                <div>
+                  <label>Qty</label>
+                  <input id="kasirQty" type="number" value="1">
+                </div>
+                <div>
+                  <label>Diskon Item %</label>
+                  <input id="kasirDiskon" type="number" value="0">
+                </div>
+                <div>
+                  <label>PPN %</label>
+                  <input id="kasirPpn" type="number" value="11">
+                </div>
+              </div>
+              <button class="btn ghost" id="btnKasirTambahItem">Tambah Item Penjualan</button>
+              <textarea id="kasirDraft" readonly style="margin-top:8px;"></textarea>
+              <button class="btn alt" id="btnKasirJual" style="margin-top:8px;">Proses Penjualan Kasir</button>
+            </div>
+          </div>
+
+          <div class="kasir-panel">
+            <div class="kasir-block" style="margin-top:0;">
+              <h3>Antrian Order Website</h3>
+              <div class="kasir-order-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nomor</th>
+                      <th>Status</th>
+                      <th>Total</th>
+                      <th>Penerima</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card tab-section sub-anchor" id="sub-akuntansi" data-section="akuntansi">
+        <h2>Akuntansi</h2>
+        <div class="actions" style="grid-template-columns: repeat(3, 1fr);">
+          <button class="btn ghost" id="btnMdlAkun">Akun</button>
+          <button class="btn ghost" id="btnMdlJurnal">Jurnal</button>
+          <button class="btn ghost" id="btnMdlBukuBesar">Buku Besar</button>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <div>
+            <label>Kode Akun Buku Besar</label>
+            <input id="mdlKodeAkun" value="1-1000" placeholder="contoh: 1-1000">
+          </div>
+          <div style="display:flex; align-items:flex-end;">
+            <button class="btn ghost" id="btnMdlBukuBesarLoad">Muat Buku Besar</button>
+          </div>
+        </div>
+        <textarea id="outAkuntansi" readonly style="margin-top:10px; min-height: 220px;"></textarea>
+      </section>
+
+      <section class="card tab-section sub-anchor" id="sub-penjualan-modul" data-section="penjualan">
+        <h2>Penjualan</h2>
+        <h3 style="margin-top:8px;">Master Pelanggan</h3>
+        <div class="row">
+          <div>
+            <label>Kode Pelanggan</label>
+            <input id="jualPelangganKode" placeholder="PLG-001">
+          </div>
+          <div>
+            <label>Nama Pelanggan</label>
+            <input id="jualPelangganNama" placeholder="Nama Pelanggan">
+          </div>
+        </div>
+        <div class="row-3">
+          <div>
+            <label>Telepon</label>
+            <input id="jualPelangganTelepon" placeholder="08xxxx">
+          </div>
+          <div>
+            <label>Email</label>
+            <input id="jualPelangganEmail" placeholder="email@contoh.com">
+          </div>
+          <div>
+            <label>Alamat</label>
+            <input id="jualPelangganAlamat" placeholder="Alamat pelanggan">
+          </div>
+        </div>
+        <button class="btn alt" id="btnJualTambahPelanggan">Tambah Pelanggan</button>
+
+        <h3 style="margin-top:14px;">Faktur Penjualan</h3>
+        <div class="row">
+          <div>
+            <label>Nomor Faktur</label>
+            <input id="jualFakturNomor" placeholder="FJ-001">
+          </div>
+          <div>
+            <label>Tanggal</label>
+            <input id="jualFakturTanggal" type="date">
+          </div>
+        </div>
+        <div class="row-3">
+          <div>
+            <label>Kode Pelanggan (Opsional)</label>
+            <input id="jualFakturKodePelanggan" placeholder="PLG-001">
+          </div>
+          <div>
+            <label>PPN %</label>
+            <input id="jualFakturPpn" type="number" value="11">
+          </div>
+          <div>
+            <label>Post Faktur Nomor</label>
+            <input id="jualPostNomor" placeholder="FJ-001">
+          </div>
+        </div>
+        <div class="row-3">
+          <div>
+            <label>Produk</label>
+            <select id="jualProduk"></select>
+          </div>
+          <div>
+            <label>Qty</label>
+            <input id="jualQty" type="number" value="1">
+          </div>
+          <div>
+            <label>Diskon %</label>
+            <input id="jualDiskon" type="number" value="0">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Harga Satuan</label>
+            <input id="jualHarga" type="number" value="0">
+          </div>
+          <div style="display:flex; align-items:flex-end;">
+            <button class="btn ghost" id="btnJualTambahItem">Tambah Item Faktur</button>
+          </div>
+        </div>
+        <textarea id="jualDraft" readonly style="margin-top:8px; min-height:120px;"></textarea>
+        <div class="actions" style="margin-top:8px; grid-template-columns: repeat(3, 1fr);">
+          <button class="btn" id="btnJualBuatFaktur">Buat Faktur</button>
+          <button class="btn alt" id="btnJualPostFaktur">Post Faktur</button>
+          <button class="btn ghost" id="btnJualResetDraft">Reset Draft</button>
+        </div>
+
+        <div class="actions" style="grid-template-columns: repeat(3, 1fr);">
+          <button class="btn ghost" id="btnMdlPelanggan">Pelanggan</button>
+          <button class="btn ghost" id="btnMdlFaktur">Faktur</button>
+          <button class="btn ghost" id="btnMdlRekapJual">Rekap Jual</button>
+        </div>
+        <textarea id="outPenjualan" readonly style="margin-top:10px; min-height: 220px;"></textarea>
+      </section>
+
+      <section class="card tab-section sub-anchor" id="sub-pembelian" data-section="pembelian">
+        <h2>Pembelian</h2>
+        <h3 style="margin-top:8px;">Master Pemasok</h3>
+        <div class="row">
+          <div>
+            <label>Kode Pemasok</label>
+            <input id="beliPemasokKode" placeholder="SUP-001">
+          </div>
+          <div>
+            <label>Nama Pemasok</label>
+            <input id="beliPemasokNama" placeholder="Nama Pemasok">
+          </div>
+        </div>
+        <div class="row-3">
+          <div>
+            <label>Platform</label>
+            <select id="beliPemasokPlatform"></select>
+          </div>
+          <div>
+            <label>Telepon</label>
+            <input id="beliPemasokTelepon" placeholder="08xxxx">
+          </div>
+          <div>
+            <label>Email</label>
+            <input id="beliPemasokEmail" placeholder="email@contoh.com">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Alamat</label>
+            <input id="beliPemasokAlamat" placeholder="Alamat pemasok">
+          </div>
+          <div style="display:flex; align-items:flex-end;">
+            <button class="btn alt" id="btnBeliTambahPemasok">Tambah Pemasok</button>
+          </div>
+        </div>
+
+        <h3 style="margin-top:14px;">Order Pembelian</h3>
+        <div class="row">
+          <div>
+            <label>Nomor Order</label>
+            <input id="beliNomor" placeholder="PO-001">
+          </div>
+          <div>
+            <label>Tanggal</label>
+            <input id="beliTanggal" type="date">
+          </div>
+        </div>
+        <div class="row-3">
+          <div>
+            <label>Platform</label>
+            <select id="beliPlatform"></select>
+          </div>
+          <div>
+            <label>Metode Bayar</label>
+            <select id="beliMetodeBayar"></select>
+          </div>
+          <div>
+            <label>Kode Pemasok (Opsional)</label>
+            <input id="beliKodePemasok" placeholder="SUP-001">
+          </div>
+        </div>
+        <div class="row-3">
+          <div>
+            <label>Produk</label>
+            <select id="beliProduk"></select>
+          </div>
+          <div>
+            <label>Qty</label>
+            <input id="beliQty" type="number" value="1">
+          </div>
+          <div>
+            <label>Harga Satuan</label>
+            <input id="beliHarga" type="number" value="0">
+          </div>
+        </div>
+        <div class="row-3">
+          <div>
+            <label>Ongkos Kirim</label>
+            <input id="beliOngkir" type="number" value="0">
+          </div>
+          <div>
+            <label>Diskon</label>
+            <input id="beliDiskonTotal" type="number" value="0">
+          </div>
+          <div>
+            <label>Post/Detail No Order</label>
+            <input id="beliPostNomor" placeholder="PO-001">
+          </div>
+        </div>
+        <button class="btn ghost" id="btnBeliTambahItem">Tambah Item Order</button>
+        <textarea id="beliDraft" readonly style="margin-top:8px; min-height:120px;"></textarea>
+        <div class="actions" style="margin-top:8px; grid-template-columns: repeat(4, 1fr);">
+          <button class="btn" id="btnBeliBuatOrder">Buat Order</button>
+          <button class="btn alt" id="btnBeliPostOrder">Post Order</button>
+          <button class="btn ghost" id="btnBeliDetailOrder">Detail Order</button>
+          <button class="btn ghost" id="btnBeliResetDraft">Reset Draft</button>
+        </div>
+
+        <div class="actions" style="grid-template-columns: repeat(3, 1fr);">
+          <button class="btn ghost" id="btnMdlPemasok">Pemasok</button>
+          <button class="btn ghost" id="btnMdlPembelian">Order Beli</button>
+          <button class="btn ghost" id="btnMdlRekapBeli">Rekap Beli</button>
+        </div>
+        <textarea id="outPembelian" readonly style="margin-top:10px; min-height: 220px;"></textarea>
+      </section>
+
+      <section class="card tab-section sub-anchor" id="sub-laporan" data-section="laporan">
+        <h2>Laporan</h2>
+        <div class="actions" style="grid-template-columns: repeat(3, 1fr);">
+          <button class="btn ghost" id="btnMdlNeracaSaldo">Neraca Saldo</button>
+          <button class="btn ghost" id="btnMdlLabaRugi">Laba Rugi</button>
+          <button class="btn ghost" id="btnMdlNeraca">Neraca</button>
+          <button class="btn ghost" id="btnMdlRekapWeb">Rekap Web</button>
+          <button class="btn ghost" id="btnMdlFeatures">Fitur API</button>
+        </div>
+        <textarea id="outLaporan" readonly style="margin-top:10px; min-height: 220px;"></textarea>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const bootQuery = new URLSearchParams(window.location.search);
+    const focusMode = String(bootQuery.get('focus') || '').toLowerCase();
+    const MAIN_MENU_STORAGE_KEY = 'sagara_main_menu';
+    const draftItems = [];
+    const cashierDraftItems = [];
+    const penjualanDraftItems = [];
+    const pembelianDraftItems = [];
+    let cachedOrders = [];
+    let catalogProducts = [];
+    let catalogFilter = 'all';
+    let flashCountdownTimer = null;
+    let authToken = localStorage.getItem('sagara_auth_token') || '';
+    let currentRole = localStorage.getItem('sagara_auth_role') || '';
+    let currentUser = localStorage.getItem('sagara_auth_user') || '';
+    let currentCapabilities = {
+      can_create_order: false,
+      can_process_order: false,
+      can_manage_produk: false,
+      can_cashier_sale: false,
+    };
+
+    const els = {
+      nomor: document.getElementById('nomor'),
+      tanggal: document.getElementById('tanggal'),
+      nama: document.getElementById('nama'),
+      telepon: document.getElementById('telepon'),
+      alamat: document.getElementById('alamat'),
+      metode: document.getElementById('metode'),
+      ongkir: document.getElementById('ongkir'),
+      ppn: document.getElementById('ppn'),
+      produk: document.getElementById('produk'),
+      qty: document.getElementById('qty'),
+      diskonItem: document.getElementById('diskonItem'),
+      loginUser: document.getElementById('loginUser'),
+      loginPass: document.getElementById('loginPass'),
+      btnLogin: document.getElementById('btnLogin'),
+      btnLogout: document.getElementById('btnLogout'),
+      authNote: document.getElementById('authNote'),
+      draft: document.getElementById('draft'),
+      status: document.getElementById('status'),
+      tbody: document.getElementById('tbody'),
+      btnTambahItem: document.getElementById('btnTambahItem'),
+      btnCreate: document.getElementById('btnCreate'),
+      btnConfirm: document.getElementById('btnConfirm'),
+      btnShip: document.getElementById('btnShip'),
+      btnDeliver: document.getElementById('btnDeliver'),
+      btnCancel: document.getElementById('btnCancel'),
+      btnReload: document.getElementById('btnReload'),
+      flashCountdown: document.getElementById('flashCountdown'),
+      catalogChips: document.getElementById('catalogChips'),
+      catalogSearch: document.getElementById('catalogSearch'),
+      catalogSort: document.getElementById('catalogSort'),
+      catalogGrid: document.getElementById('catalogGrid'),
+      kasirKode: document.getElementById('kasirKode'),
+      kasirNama: document.getElementById('kasirNama'),
+      kasirHargaJual: document.getElementById('kasirHargaJual'),
+      kasirHargaBeli: document.getElementById('kasirHargaBeli'),
+      kasirStok: document.getElementById('kasirStok'),
+      kasirImage: document.getElementById('kasirImage'),
+      btnKasirTambahProduk: document.getElementById('btnKasirTambahProduk'),
+      kasirNomor: document.getElementById('kasirNomor'),
+      kasirPembeli: document.getElementById('kasirPembeli'),
+      kasirMetode: document.getElementById('kasirMetode'),
+      kasirProduk: document.getElementById('kasirProduk'),
+      kasirQty: document.getElementById('kasirQty'),
+      kasirDiskon: document.getElementById('kasirDiskon'),
+      kasirPpn: document.getElementById('kasirPpn'),
+      btnKasirTambahItem: document.getElementById('btnKasirTambahItem'),
+      kasirDraft: document.getElementById('kasirDraft'),
+      btnKasirJual: document.getElementById('btnKasirJual'),
+      kasirStatOrderCount: document.getElementById('kasirStatOrderCount'),
+      kasirStatDraftCount: document.getElementById('kasirStatDraftCount'),
+      kasirStatRevenue: document.getElementById('kasirStatRevenue'),
+      btnMdlAkun: document.getElementById('btnMdlAkun'),
+      btnMdlPelanggan: document.getElementById('btnMdlPelanggan'),
+      btnMdlPemasok: document.getElementById('btnMdlPemasok'),
+      jualPelangganKode: document.getElementById('jualPelangganKode'),
+      jualPelangganNama: document.getElementById('jualPelangganNama'),
+      jualPelangganTelepon: document.getElementById('jualPelangganTelepon'),
+      jualPelangganEmail: document.getElementById('jualPelangganEmail'),
+      jualPelangganAlamat: document.getElementById('jualPelangganAlamat'),
+      btnJualTambahPelanggan: document.getElementById('btnJualTambahPelanggan'),
+      jualFakturNomor: document.getElementById('jualFakturNomor'),
+      jualFakturTanggal: document.getElementById('jualFakturTanggal'),
+      jualFakturKodePelanggan: document.getElementById('jualFakturKodePelanggan'),
+      jualFakturPpn: document.getElementById('jualFakturPpn'),
+      jualPostNomor: document.getElementById('jualPostNomor'),
+      jualProduk: document.getElementById('jualProduk'),
+      jualQty: document.getElementById('jualQty'),
+      jualDiskon: document.getElementById('jualDiskon'),
+      jualHarga: document.getElementById('jualHarga'),
+      btnJualTambahItem: document.getElementById('btnJualTambahItem'),
+      jualDraft: document.getElementById('jualDraft'),
+      btnJualBuatFaktur: document.getElementById('btnJualBuatFaktur'),
+      btnJualPostFaktur: document.getElementById('btnJualPostFaktur'),
+      btnJualResetDraft: document.getElementById('btnJualResetDraft'),
+      beliPemasokKode: document.getElementById('beliPemasokKode'),
+      beliPemasokNama: document.getElementById('beliPemasokNama'),
+      beliPemasokPlatform: document.getElementById('beliPemasokPlatform'),
+      beliPemasokTelepon: document.getElementById('beliPemasokTelepon'),
+      beliPemasokEmail: document.getElementById('beliPemasokEmail'),
+      beliPemasokAlamat: document.getElementById('beliPemasokAlamat'),
+      btnBeliTambahPemasok: document.getElementById('btnBeliTambahPemasok'),
+      beliNomor: document.getElementById('beliNomor'),
+      beliTanggal: document.getElementById('beliTanggal'),
+      beliPlatform: document.getElementById('beliPlatform'),
+      beliMetodeBayar: document.getElementById('beliMetodeBayar'),
+      beliKodePemasok: document.getElementById('beliKodePemasok'),
+      beliProduk: document.getElementById('beliProduk'),
+      beliQty: document.getElementById('beliQty'),
+      beliHarga: document.getElementById('beliHarga'),
+      beliOngkir: document.getElementById('beliOngkir'),
+      beliDiskonTotal: document.getElementById('beliDiskonTotal'),
+      beliPostNomor: document.getElementById('beliPostNomor'),
+      btnBeliTambahItem: document.getElementById('btnBeliTambahItem'),
+      beliDraft: document.getElementById('beliDraft'),
+      btnBeliBuatOrder: document.getElementById('btnBeliBuatOrder'),
+      btnBeliPostOrder: document.getElementById('btnBeliPostOrder'),
+      btnBeliDetailOrder: document.getElementById('btnBeliDetailOrder'),
+      btnBeliResetDraft: document.getElementById('btnBeliResetDraft'),
+      btnMdlJurnal: document.getElementById('btnMdlJurnal'),
+      btnMdlBukuBesar: document.getElementById('btnMdlBukuBesar'),
+      btnMdlBukuBesarLoad: document.getElementById('btnMdlBukuBesarLoad'),
+      mdlKodeAkun: document.getElementById('mdlKodeAkun'),
+      btnMdlFaktur: document.getElementById('btnMdlFaktur'),
+      btnMdlPembelian: document.getElementById('btnMdlPembelian'),
+      btnMdlNeracaSaldo: document.getElementById('btnMdlNeracaSaldo'),
+      btnMdlLabaRugi: document.getElementById('btnMdlLabaRugi'),
+      btnMdlNeraca: document.getElementById('btnMdlNeraca'),
+      btnMdlRekapJual: document.getElementById('btnMdlRekapJual'),
+      btnMdlRekapBeli: document.getElementById('btnMdlRekapBeli'),
+      btnMdlRekapWeb: document.getElementById('btnMdlRekapWeb'),
+      btnMdlFeatures: document.getElementById('btnMdlFeatures'),
+      outAkuntansi: document.getElementById('outAkuntansi'),
+      outPenjualan: document.getElementById('outPenjualan'),
+      outPembelian: document.getElementById('outPembelian'),
+      outLaporan: document.getElementById('outLaporan'),
+    };
+    const menuButtons = Array.from(document.querySelectorAll('[data-menu]'));
+    const tabSections = Array.from(document.querySelectorAll('.tab-section'));
+    const menuTargets = {
+      website: document.getElementById('sub-website'),
+      kasir: document.getElementById('sub-kasir'),
+      akuntansi: document.getElementById('sub-akuntansi'),
+      penjualan: document.getElementById('sub-penjualan-modul'),
+      pembelian: document.getElementById('sub-pembelian'),
+      laporan: document.getElementById('sub-laporan'),
+    };
+    const menuToSection = {
+      website: 'website',
+      kasir: 'kasir',
+      akuntansi: 'akuntansi',
+      penjualan: 'penjualan',
+      pembelian: 'pembelian',
+      laporan: 'laporan',
+    };
+
+    function normalizeMenuKey(menuKey) {
+      return menuToSection[menuKey] ? menuKey : 'website';
+    }
+
+    function getSavedMainMenu() {
+      const saved = String(localStorage.getItem(MAIN_MENU_STORAGE_KEY) || '').trim();
+      return menuToSection[saved] ? saved : null;
+    }
+
+    function setToday() {
+      const d = new Date();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      els.tanggal.value = `${d.getFullYear()}-${m}-${day}`;
+      if (!els.nomor.value) {
+        els.nomor.value = `WEB-${d.getTime()}`;
+      }
+      if (!els.kasirNomor.value) {
+        els.kasirNomor.value = `KSR-${d.getTime()}`;
+      }
+      if (!els.jualFakturTanggal.value) {
+        els.jualFakturTanggal.value = `${d.getFullYear()}-${m}-${day}`;
+      }
+      if (!els.beliTanggal.value) {
+        els.beliTanggal.value = `${d.getFullYear()}-${m}-${day}`;
+      }
+      if (!els.jualFakturNomor.value) {
+        els.jualFakturNomor.value = `FJ-${d.getTime()}`;
+      }
+      if (!els.beliNomor.value) {
+        els.beliNomor.value = `PO-${d.getTime()}`;
+      }
+    }
+
+    function setStatus(msg, ok = true) {
+      els.status.className = `status ${ok ? 'ok' : 'err'}`;
+      els.status.textContent = msg;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function formatRupiah(value) {
+      return `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
+    }
+
+    function isFlashProduct(product, index) {
+      return index < 6;
+    }
+
+    function getFlashEndTime() {
+      const now = new Date();
+      const end = new Date(now);
+      end.setHours(now.getHours() + 1, 0, 0, 0);
+      return end;
+    }
+
+    function renderFlashCountdown() {
+      const target = getFlashEndTime().getTime();
+      const now = Date.now();
+      const diff = Math.max(0, target - now);
+      const hh = String(Math.floor(diff / 3600000)).padStart(2, '0');
+      const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+      const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+      if (els.flashCountdown) {
+        els.flashCountdown.textContent = `${hh}:${mm}:${ss}`;
+      }
+    }
+
+    function startFlashCountdown() {
+      if (flashCountdownTimer) {
+        window.clearInterval(flashCountdownTimer);
+      }
+      renderFlashCountdown();
+      flashCountdownTimer = window.setInterval(renderFlashCountdown, 1000);
+    }
+
+    function getFilteredCatalogProducts() {
+      const q = String(els.catalogSearch.value || '').trim().toLowerCase();
+      const sort = String(els.catalogSort.value || 'relevance');
+
+      let rows = catalogProducts.filter((p, idx) => {
+        if (!q) return true;
+        const hay = `${p.kode || ''} ${p.nama || ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+        if (catalogFilter === 'flash') return isFlashProduct(p, idx);
+        if (catalogFilter === 'budget') return Number(p.harga_jual || 0) < 100000;
+        if (catalogFilter === 'ready') return Number(p.stok || 0) > 0;
+        return true;
+      });
+
+      if (catalogFilter !== 'all') {
+        rows = rows.filter((p, idx) => {
+          if (catalogFilter === 'flash') return isFlashProduct(p, idx);
+          if (catalogFilter === 'budget') return Number(p.harga_jual || 0) < 100000;
+          if (catalogFilter === 'ready') return Number(p.stok || 0) > 0;
+          return true;
+        });
+      }
+
+      if (sort === 'price-asc') {
+        rows = rows.slice().sort((a, b) => Number(a.harga_jual || 0) - Number(b.harga_jual || 0));
+      } else if (sort === 'price-desc') {
+        rows = rows.slice().sort((a, b) => Number(b.harga_jual || 0) - Number(a.harga_jual || 0));
+      } else if (sort === 'stock-desc') {
+        rows = rows.slice().sort((a, b) => Number(b.stok || 0) - Number(a.stok || 0));
+      }
+
+      return rows;
+    }
+
+    function renderCatalog() {
+      const rows = getFilteredCatalogProducts();
+      if (!rows.length) {
+        els.catalogGrid.innerHTML = '<div class="catalog-empty">Produk tidak ditemukan. Coba kata kunci lain.</div>';
+        return;
+      }
+
+      els.catalogGrid.innerHTML = rows.map((p, idx) => {
+        const stok = Number(p.stok || 0);
+        const badge = stok > 0 ? `Stok ${stok}` : 'Habis';
+        const oldPrice = Number(p.harga_jual || 0) * 1.15;
+        const isFlash = isFlashProduct(p, idx);
+        const imageUrl = String(p.image_url || '').trim();
+        return `
+          <article class="catalog-card">
+            <div class="catalog-cover ${imageUrl ? 'with-image' : ''}">
+              ${imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(p.nama || 'Produk')}">` : ''}
+              <span class="catalog-badge">${escapeHtml(isFlash ? 'Flash' : (p.satuan || 'pcs'))}</span>
+              <span class="catalog-badge">${escapeHtml(badge)}</span>
+            </div>
+            <div class="catalog-body">
+              <div class="catalog-code">${escapeHtml(p.kode || '-')}</div>
+              <h3 class="catalog-name">${escapeHtml(p.nama || '-')}</h3>
+              <div class="catalog-old-price">${escapeHtml(formatRupiah(oldPrice))}</div>
+              <div class="catalog-price">${escapeHtml(formatRupiah(p.harga_jual))}</div>
+              <div class="catalog-meta">Harga beli: ${escapeHtml(formatRupiah(p.harga_beli))}</div>
+              <div class="catalog-actions">
+                <button class="btn" data-buy-kode="${escapeHtml(p.kode || '')}" ${stok <= 0 ? 'disabled' : ''}>Beli Cepat</button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function setAuthUi() {
+      if (!authToken) {
+        els.authNote.textContent = 'Belum login';
+      } else {
+        els.authNote.textContent = `Login: ${currentRole} (${currentUser || '-'})`;
+      }
+      els.btnCreate.disabled = !currentCapabilities.can_create_order;
+      els.btnTambahItem.disabled = !currentCapabilities.can_create_order;
+      els.btnConfirm.disabled = !currentCapabilities.can_process_order;
+      els.btnShip.disabled = !currentCapabilities.can_process_order;
+      els.btnDeliver.disabled = !currentCapabilities.can_process_order;
+      els.btnCancel.disabled = !currentCapabilities.can_process_order;
+      els.btnKasirTambahProduk.disabled = !currentCapabilities.can_manage_produk;
+      els.btnKasirTambahItem.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnKasirJual.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnJualTambahPelanggan.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnJualTambahItem.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnJualBuatFaktur.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnJualPostFaktur.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnJualResetDraft.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnBeliTambahPemasok.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnBeliTambahItem.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnBeliBuatOrder.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnBeliPostOrder.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnBeliDetailOrder.disabled = !currentCapabilities.can_cashier_sale;
+      els.btnBeliResetDraft.disabled = !currentCapabilities.can_cashier_sale;
+      if (currentRole === 'cashier') {
+        setActiveMainMenu('kasir');
+      } else if (currentRole === 'admin') {
+        setActiveMainMenu('akuntansi');
+      } else if (currentRole === 'buyer') {
+        setActiveMainMenu('website');
+      }
+      applyActionFocus();
+    }
+
+    function resetCapabilities() {
+      currentCapabilities = {
+        can_create_order: false,
+        can_process_order: false,
+        can_manage_produk: false,
+        can_cashier_sale: false,
+      };
+    }
+
+    function applyLoginDefaults() {
+      els.loginUser.placeholder = 'username pembeli/kasir/admin';
+      els.loginPass.placeholder = 'password akun (kosongkan untuk tamu pembeli)';
+      if (focusMode === 'create' && !els.loginUser.value) {
+        els.loginUser.value = 'pembeli';
+      }
+      if (focusMode === 'process' && !els.loginUser.value) {
+        els.loginUser.value = 'kasir';
+        if (!els.loginPass.value) els.loginPass.value = 'kasir123';
+      }
+    }
+
+    function clearActionFocus() {
+      [
+        els.btnTambahItem,
+        els.btnCreate,
+        els.btnConfirm,
+        els.btnShip,
+        els.btnDeliver,
+        els.btnCancel,
+      ].forEach((btn) => btn.classList.remove('focused'));
+    }
+
+    function applyActionFocus() {
+      clearActionFocus();
+      if (currentRole === 'buyer') {
+        els.btnTambahItem.classList.add('focused');
+        els.btnCreate.classList.add('focused');
+        return;
+      }
+      if (currentRole === 'cashier') {
+        els.btnConfirm.classList.add('focused');
+        els.btnShip.classList.add('focused');
+        els.btnDeliver.classList.add('focused');
+        els.btnCancel.classList.add('focused');
+        return;
+      }
+      if (currentRole === 'admin') {
+        els.btnTambahItem.classList.add('focused');
+        els.btnCreate.classList.add('focused');
+        els.btnConfirm.classList.add('focused');
+        els.btnShip.classList.add('focused');
+        els.btnDeliver.classList.add('focused');
+        els.btnCancel.classList.add('focused');
+        return;
+      }
+      if (focusMode === 'create') {
+        els.btnTambahItem.classList.add('focused');
+        els.btnCreate.classList.add('focused');
+      }
+      if (focusMode === 'process') {
+        els.btnConfirm.classList.add('focused');
+        els.btnShip.classList.add('focused');
+        els.btnDeliver.classList.add('focused');
+        els.btnCancel.classList.add('focused');
+      }
+    }
+
+    function applyFocusRoleSuggestion() {
+      if (authToken) return;
+      applyLoginDefaults();
+      applyActionFocus();
+    }
+
+    function scrollToRoleArea() {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const scrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
+      let target = null;
+
+      if (currentRole === 'buyer' || focusMode === 'create') {
+        target = els.btnCreate;
+      } else if (currentRole === 'cashier' || focusMode === 'process') {
+        target = els.btnConfirm;
+      } else if (currentRole === 'admin') {
+        target = els.btnCreate;
+      }
+
+      if (target) {
+        window.setTimeout(() => {
+          target.scrollIntoView({ behavior: scrollBehavior, block: 'center' });
+        }, 120);
+      }
+    }
+
+    function setActiveMainMenu(menuKey, persist = true) {
+      const normalizedKey = normalizeMenuKey(menuKey);
+      menuButtons.forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.menu === normalizedKey);
+      });
+      const activeSection = menuToSection[normalizedKey] || 'website';
+      tabSections.forEach((section) => {
+        section.classList.toggle('hidden', section.dataset.section !== activeSection);
+      });
+      if (persist) {
+        localStorage.setItem(MAIN_MENU_STORAGE_KEY, normalizedKey);
+      }
+    }
+
+    function goToMainMenu(menuKey) {
+      const normalizedKey = normalizeMenuKey(menuKey);
+      const target = menuTargets[normalizedKey];
+      if (!target) return;
+      setActiveMainMenu(normalizedKey);
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        block: 'start',
+      });
+    }
+
+    function setupMainMenu() {
+      menuButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          goToMainMenu(btn.dataset.menu);
+        });
+      });
+    }
+
+    async function api(path, method = 'GET', body) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (authToken) {
+        headers.Authorization = `Bearer ${authToken}`;
+      }
+      const opt = { method, headers };
+      if (body) opt.body = JSON.stringify(body);
+      const r = await fetch(path, opt);
+      const data = await r.json();
+      if (!data.ok) throw new Error(data.error || 'Request gagal');
+      return data.data;
+    }
+
+    function drawDraft() {
+      els.draft.value = JSON.stringify(draftItems, null, 2);
+    }
+
+    function drawCashierDraft() {
+      els.kasirDraft.value = JSON.stringify(cashierDraftItems, null, 2);
+      updateKasirStats();
+    }
+
+    function updateKasirStats(ordersInput) {
+      if (Array.isArray(ordersInput)) {
+        cachedOrders = ordersInput;
+      }
+      const orders = Array.isArray(cachedOrders) ? cachedOrders : [];
+      const delivered = orders.filter((o) => String(o.status || '').toUpperCase() === 'DELIVERED');
+      const revenue = delivered.reduce((sum, o) => sum + Number(o.total_bayar || 0), 0);
+
+      if (els.kasirStatOrderCount) {
+        els.kasirStatOrderCount.textContent = String(orders.length);
+      }
+      if (els.kasirStatDraftCount) {
+        els.kasirStatDraftCount.textContent = String(cashierDraftItems.length);
+      }
+      if (els.kasirStatRevenue) {
+        els.kasirStatRevenue.textContent = `Rp ${Number(revenue).toLocaleString('id-ID')}`;
+      }
+    }
+
+    function drawPenjualanDraft() {
+      els.jualDraft.value = JSON.stringify(penjualanDraftItems, null, 2);
+    }
+
+    function drawPembelianDraft() {
+      els.beliDraft.value = JSON.stringify(pembelianDraftItems, null, 2);
+    }
+
+    function renderModuleOutput(outputElement, title, payload) {
+      outputElement.value = `${title}\n${'='.repeat(title.length)}\n\n${JSON.stringify(payload, null, 2)}`;
+    }
+
+    function findSelectedProduct() {
+      const selected = els.produk.value;
+      if (!selected) return null;
+      try {
+        return JSON.parse(selected);
+      } catch {
+        return null;
+      }
+    }
+
+    async function loadMetaAndProducts() {
+      const meta = await api('/api/meta');
+      const products = await api('/api/produk');
+      catalogProducts = products;
+      renderCatalog();
+
+      els.metode.innerHTML = '';
+      meta.metode_bayar.forEach((m) => {
+        const op = document.createElement('option');
+        op.value = m;
+        op.textContent = m;
+        els.metode.appendChild(op);
+      });
+
+      els.produk.innerHTML = '';
+      products.forEach((p) => {
+        const op = document.createElement('option');
+        op.value = JSON.stringify({ kode: p.kode, harga: p.harga_jual });
+        op.textContent = `${p.kode} - ${p.nama} (stok ${p.stok})`;
+        els.produk.appendChild(op);
+      });
+
+      els.kasirProduk.innerHTML = '';
+      products.forEach((p) => {
+        const op = document.createElement('option');
+        op.value = JSON.stringify({ kode: p.kode, harga: p.harga_jual });
+        op.textContent = `${p.kode} - ${p.nama} (stok ${p.stok})`;
+        els.kasirProduk.appendChild(op);
+      });
+
+      els.kasirMetode.innerHTML = '';
+      (meta.metode_bayar || []).forEach((m) => {
+        const op = document.createElement('option');
+        op.value = m;
+        op.textContent = m;
+        els.kasirMetode.appendChild(op);
+      });
+      const hutangOption = document.createElement('option');
+      hutangOption.value = 'Hutang';
+      hutangOption.textContent = 'Hutang';
+      els.kasirMetode.appendChild(hutangOption);
+
+      els.jualProduk.innerHTML = '';
+      products.forEach((p) => {
+        const op = document.createElement('option');
+        op.value = JSON.stringify({ kode: p.kode, harga: p.harga_jual });
+        op.textContent = `${p.kode} - ${p.nama} (jual ${Number(p.harga_jual).toLocaleString('id-ID')})`;
+        els.jualProduk.appendChild(op);
+      });
+
+      els.beliProduk.innerHTML = '';
+      products.forEach((p) => {
+        const op = document.createElement('option');
+        op.value = JSON.stringify({ kode: p.kode, harga: p.harga_beli });
+        op.textContent = `${p.kode} - ${p.nama} (beli ${Number(p.harga_beli).toLocaleString('id-ID')})`;
+        els.beliProduk.appendChild(op);
+      });
+
+      if (els.jualProduk.value) {
+        try {
+          const jp = JSON.parse(els.jualProduk.value);
+          els.jualHarga.value = Number(jp.harga || 0);
+        } catch {
+          els.jualHarga.value = 0;
+        }
+      }
+
+      if (els.beliProduk.value) {
+        try {
+          const bp = JSON.parse(els.beliProduk.value);
+          els.beliHarga.value = Number(bp.harga || 0);
+        } catch {
+          els.beliHarga.value = 0;
+        }
+      }
+
+      els.beliPlatform.innerHTML = '';
+      els.beliPemasokPlatform.innerHTML = '';
+      (meta.platform_pembelian || []).forEach((m) => {
+        const op1 = document.createElement('option');
+        op1.value = m;
+        op1.textContent = m;
+        els.beliPlatform.appendChild(op1);
+
+        const op2 = document.createElement('option');
+        op2.value = m;
+        op2.textContent = m;
+        els.beliPemasokPlatform.appendChild(op2);
+      });
+
+      els.beliMetodeBayar.innerHTML = '';
+      (meta.metode_bayar_pembelian || []).forEach((m) => {
+        const op = document.createElement('option');
+        op.value = m;
+        op.textContent = m;
+        els.beliMetodeBayar.appendChild(op);
+      });
+    }
+
+    els.catalogSearch.addEventListener('input', renderCatalog);
+    els.catalogSort.addEventListener('change', renderCatalog);
+    els.catalogChips.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const chip = String(target.getAttribute('data-chip') || '').trim();
+      if (!chip) return;
+      catalogFilter = chip;
+      Array.from(els.catalogChips.querySelectorAll('.chip')).forEach((btn) => {
+        btn.classList.toggle('active', btn.getAttribute('data-chip') === chip);
+      });
+      renderCatalog();
+    });
+    els.catalogGrid.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const kode = String(target.getAttribute('data-buy-kode') || '').trim();
+      if (!kode) return;
+
+      const product = catalogProducts.find((p) => p.kode === kode);
+      if (!product) return setStatus('Produk tidak ditemukan', false);
+      if (Number(product.stok || 0) <= 0) return setStatus('Stok produk habis', false);
+
+      draftItems.push({
+        kode_produk: product.kode,
+        qty: 1,
+        harga_satuan: Number(product.harga_jual || 0),
+        diskon_persen: 0,
+      });
+      drawDraft();
+      goToMainMenu('website');
+      setStatus(`Produk ${product.kode} ditambahkan ke draft order website`);
+    });
+
+    async function loadOrders() {
+      const orders = await api('/api/orders');
+      updateKasirStats(orders);
+      els.tbody.innerHTML = '';
+      orders.slice().reverse().forEach((o) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${o.nomor}</td>
+          <td>${o.status}</td>
+          <td>${Number(o.total_bayar).toLocaleString('id-ID')}</td>
+          <td>${o.nama_penerima}</td>
+        `;
+        els.tbody.appendChild(tr);
+      });
+    }
+
+    els.btnTambahItem.addEventListener('click', () => {
+      const p = findSelectedProduct();
+      if (!p) return setStatus('Pilih produk dulu', false);
+      draftItems.push({
+        kode_produk: p.kode,
+        qty: Number(els.qty.value || 1),
+        harga_satuan: Number(p.harga),
+        diskon_persen: Number(els.diskonItem.value || 0),
+      });
+      drawDraft();
+      setStatus('Item ditambahkan ke draft');
+    });
+
+    els.btnCreate.addEventListener('click', async () => {
+      try {
+        if (!draftItems.length) throw new Error('Draft item masih kosong');
+        const payload = {
+          nomor: els.nomor.value.trim(),
+          tanggal: els.tanggal.value,
+          nama_penerima: els.nama.value.trim(),
+          alamat_kirim: els.alamat.value.trim(),
+          telepon_penerima: els.telepon.value.trim(),
+          metode_bayar: els.metode.value,
+          ongkos_kirim: Number(els.ongkir.value || 0),
+          ppn_persen: Number(els.ppn.value || 11),
+          detail: draftItems,
+        };
+        const r = await api('/api/orders', 'POST', payload);
+        setStatus(`Order ${r.nomor} dibuat. Total ${Number(r.total_bayar).toLocaleString('id-ID')}`);
+        await loadOrders();
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnConfirm.addEventListener('click', async () => {
+      try {
+        const no = els.nomor.value.trim();
+        await api(`/api/orders/${encodeURIComponent(no)}/confirm`, 'POST', {});
+        setStatus(`Order ${no} dikonfirmasi`);
+        await loadOrders();
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnShip.addEventListener('click', async () => {
+      try {
+        const no = els.nomor.value.trim();
+        await api(`/api/orders/${encodeURIComponent(no)}/ship`, 'POST', { kurir: 'JNE' });
+        setStatus(`Order ${no} dikirim`);
+        await loadOrders();
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnDeliver.addEventListener('click', async () => {
+      try {
+        const no = els.nomor.value.trim();
+        await api(`/api/orders/${encodeURIComponent(no)}/deliver`, 'POST', {});
+        setStatus(`Order ${no} delivered`);
+        await loadOrders();
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnCancel.addEventListener('click', async () => {
+      try {
+        const no = els.nomor.value.trim();
+        await api(`/api/orders/${encodeURIComponent(no)}/cancel`, 'POST', {});
+        setStatus(`Order ${no} dibatalkan`);
+        await loadOrders();
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnKasirTambahProduk.addEventListener('click', async () => {
+      try {
+        const payload = {
+          kode: els.kasirKode.value.trim(),
+          nama: els.kasirNama.value.trim(),
+          satuan: 'pcs',
+          image_url: String(els.kasirImage.value || '').trim(),
+          harga_jual: Number(els.kasirHargaJual.value || 0),
+          harga_beli: Number(els.kasirHargaBeli.value || 0),
+          stok: Number(els.kasirStok.value || 0),
+        };
+        if (!payload.kode || !payload.nama) {
+          throw new Error('Kode dan nama produk wajib diisi');
+        }
+        const r = await api('/api/produk', 'POST', payload);
+        setStatus(`Produk kasir ${r.kode} berhasil ditambahkan`);
+        await loadMetaAndProducts();
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnKasirTambahItem.addEventListener('click', () => {
+      try {
+        const selected = els.kasirProduk.value;
+        if (!selected) throw new Error('Pilih produk kasir dulu');
+        const p = JSON.parse(selected);
+        cashierDraftItems.push({
+          kode_produk: p.kode,
+          qty: Number(els.kasirQty.value || 1),
+          harga_satuan: Number(p.harga),
+          diskon_persen: Number(els.kasirDiskon.value || 0),
+        });
+        drawCashierDraft();
+        setStatus('Item penjualan kasir ditambahkan');
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnKasirJual.addEventListener('click', async () => {
+      try {
+        if (!cashierDraftItems.length) throw new Error('Draft penjualan kasir masih kosong');
+        const payload = {
+          nomor: els.kasirNomor.value.trim(),
+          tanggal: els.tanggal.value,
+          nama_penerima: els.kasirPembeli.value.trim() || 'Pelanggan Toko',
+          metode_bayar: els.kasirMetode.value,
+          ppn_persen: Number(els.kasirPpn.value || 11),
+          detail: cashierDraftItems,
+        };
+        const r = await api('/api/kasir/sales', 'POST', payload);
+        setStatus(`Penjualan kasir ${r.nomor} selesai. Total ${Number(r.total_bayar).toLocaleString('id-ID')}`);
+        cashierDraftItems.length = 0;
+        drawCashierDraft();
+        els.kasirNomor.value = `KSR-${Date.now()}`;
+        await loadMetaAndProducts();
+        await loadOrders();
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.jualProduk.addEventListener('change', () => {
+      try {
+        const p = JSON.parse(els.jualProduk.value || '{}');
+        els.jualHarga.value = Number(p.harga || 0);
+      } catch {
+        els.jualHarga.value = 0;
+      }
+    });
+
+    els.beliProduk.addEventListener('change', () => {
+      try {
+        const p = JSON.parse(els.beliProduk.value || '{}');
+        els.beliHarga.value = Number(p.harga || 0);
+      } catch {
+        els.beliHarga.value = 0;
+      }
+    });
+
+    els.btnJualTambahPelanggan.addEventListener('click', async () => {
+      try {
+        const payload = {
+          kode: els.jualPelangganKode.value.trim(),
+          nama: els.jualPelangganNama.value.trim(),
+          telepon: els.jualPelangganTelepon.value.trim(),
+          email: els.jualPelangganEmail.value.trim(),
+          alamat: els.jualPelangganAlamat.value.trim(),
+        };
+        if (!payload.kode || !payload.nama) throw new Error('Kode dan nama pelanggan wajib diisi');
+        const r = await api('/api/penjualan/pelanggan', 'POST', payload);
+        setStatus(`Pelanggan ${r.kode} berhasil ditambahkan`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnJualTambahItem.addEventListener('click', () => {
+      try {
+        const selected = els.jualProduk.value;
+        if (!selected) throw new Error('Pilih produk penjualan dulu');
+        const p = JSON.parse(selected);
+        const qty = Number(els.jualQty.value || 0);
+        const harga = Number(els.jualHarga.value || 0);
+        if (qty <= 0) throw new Error('Qty harus lebih besar dari 0');
+        penjualanDraftItems.push({
+          kode_produk: p.kode,
+          qty,
+          harga_satuan: harga,
+          diskon_persen: Number(els.jualDiskon.value || 0),
+        });
+        drawPenjualanDraft();
+        setStatus('Item faktur penjualan ditambahkan');
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnJualBuatFaktur.addEventListener('click', async () => {
+      try {
+        if (!penjualanDraftItems.length) throw new Error('Draft faktur masih kosong');
+        const payload = {
+          nomor: els.jualFakturNomor.value.trim(),
+          tanggal: els.jualFakturTanggal.value,
+          kode_pelanggan: els.jualFakturKodePelanggan.value.trim() || null,
+          ppn_persen: Number(els.jualFakturPpn.value || 11),
+          detail: penjualanDraftItems,
+        };
+        if (!payload.nomor) throw new Error('Nomor faktur wajib diisi');
+        const r = await api('/api/penjualan/faktur', 'POST', payload);
+        els.jualPostNomor.value = r.nomor;
+        setStatus(`Faktur ${r.nomor} dibuat. Total ${Number(r.total_bayar).toLocaleString('id-ID')}`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnJualPostFaktur.addEventListener('click', async () => {
+      try {
+        const nomor = els.jualPostNomor.value.trim() || els.jualFakturNomor.value.trim();
+        if (!nomor) throw new Error('Nomor faktur untuk post wajib diisi');
+        await api(`/api/penjualan/faktur/${encodeURIComponent(nomor)}/post`, 'POST', {});
+        setStatus(`Faktur ${nomor} berhasil diposting`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnJualResetDraft.addEventListener('click', () => {
+      penjualanDraftItems.length = 0;
+      drawPenjualanDraft();
+      setStatus('Draft faktur penjualan direset');
+    });
+
+    els.btnBeliTambahPemasok.addEventListener('click', async () => {
+      try {
+        const payload = {
+          kode: els.beliPemasokKode.value.trim(),
+          nama: els.beliPemasokNama.value.trim(),
+          platform: els.beliPemasokPlatform.value || 'Manual',
+          telepon: els.beliPemasokTelepon.value.trim(),
+          email: els.beliPemasokEmail.value.trim(),
+          alamat: els.beliPemasokAlamat.value.trim(),
+        };
+        if (!payload.kode || !payload.nama) throw new Error('Kode dan nama pemasok wajib diisi');
+        const r = await api('/api/pembelian/pemasok', 'POST', payload);
+        setStatus(`Pemasok ${r.kode} berhasil ditambahkan`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnBeliTambahItem.addEventListener('click', () => {
+      try {
+        const selected = els.beliProduk.value;
+        if (!selected) throw new Error('Pilih produk pembelian dulu');
+        const p = JSON.parse(selected);
+        const qty = Number(els.beliQty.value || 0);
+        const harga = Number(els.beliHarga.value || 0);
+        if (qty <= 0) throw new Error('Qty harus lebih besar dari 0');
+        pembelianDraftItems.push({
+          kode_produk: p.kode,
+          qty,
+          harga_satuan: harga,
+        });
+        drawPembelianDraft();
+        setStatus('Item order pembelian ditambahkan');
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnBeliBuatOrder.addEventListener('click', async () => {
+      try {
+        if (!pembelianDraftItems.length) throw new Error('Draft order pembelian masih kosong');
+        const payload = {
+          nomor: els.beliNomor.value.trim(),
+          tanggal: els.beliTanggal.value,
+          platform: els.beliPlatform.value || 'Manual',
+          nomor_platform: '',
+          kode_pemasok: els.beliKodePemasok.value.trim() || null,
+          metode_bayar: els.beliMetodeBayar.value || 'Transfer',
+          ongkos_kirim: Number(els.beliOngkir.value || 0),
+          diskon: Number(els.beliDiskonTotal.value || 0),
+          detail: pembelianDraftItems,
+        };
+        if (!payload.nomor) throw new Error('Nomor order pembelian wajib diisi');
+        const r = await api('/api/pembelian/orders', 'POST', payload);
+        els.beliPostNomor.value = r.nomor;
+        setStatus(`Order pembelian ${r.nomor} dibuat. Total ${Number(r.total_bayar).toLocaleString('id-ID')}`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnBeliPostOrder.addEventListener('click', async () => {
+      try {
+        const nomor = els.beliPostNomor.value.trim() || els.beliNomor.value.trim();
+        if (!nomor) throw new Error('Nomor order untuk post wajib diisi');
+        await api(`/api/pembelian/orders/${encodeURIComponent(nomor)}/post`, 'POST', {});
+        setStatus(`Order pembelian ${nomor} berhasil diposting`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnBeliDetailOrder.addEventListener('click', async () => {
+      try {
+        const nomor = els.beliPostNomor.value.trim() || els.beliNomor.value.trim();
+        if (!nomor) throw new Error('Nomor order untuk detail wajib diisi');
+        const data = await api(`/api/pembelian/orders/${encodeURIComponent(nomor)}`);
+        renderModuleOutput(els.outPembelian, `Detail Order ${nomor}`, data);
+        setStatus(`Detail order ${nomor} dimuat`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnBeliResetDraft.addEventListener('click', () => {
+      pembelianDraftItems.length = 0;
+      drawPembelianDraft();
+      setStatus('Draft order pembelian direset');
+    });
+
+    els.btnReload.addEventListener('click', async () => {
+      try {
+        await loadOrders();
+        setStatus('Data dimuat ulang');
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlAkun.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/akuntansi/akun');
+        renderModuleOutput(els.outAkuntansi, 'Daftar Akun', data);
+        setStatus(`Akun dimuat (${data.length} baris)`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlPelanggan.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/penjualan/pelanggan');
+        renderModuleOutput(els.outPenjualan, 'Daftar Pelanggan', data);
+        setStatus(`Pelanggan dimuat (${data.length} baris)`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlPemasok.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/pembelian/pemasok');
+        renderModuleOutput(els.outPembelian, 'Daftar Pemasok', data);
+        setStatus(`Pemasok dimuat (${data.length} baris)`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlJurnal.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/akuntansi/jurnal');
+        renderModuleOutput(els.outAkuntansi, 'Daftar Jurnal', data);
+        setStatus(`Jurnal dimuat (${data.length} entri)`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    async function loadBukuBesar() {
+      try {
+        const kode = els.mdlKodeAkun.value.trim();
+        if (!kode) throw new Error('Kode akun buku besar wajib diisi');
+        const data = await api(`/api/akuntansi/buku-besar/${encodeURIComponent(kode)}`);
+        renderModuleOutput(els.outAkuntansi, `Buku Besar ${kode}`, data);
+        setStatus(`Buku besar akun ${kode} dimuat`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    }
+
+    els.btnMdlBukuBesar.addEventListener('click', loadBukuBesar);
+    els.btnMdlBukuBesarLoad.addEventListener('click', loadBukuBesar);
+
+    els.btnMdlFaktur.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/penjualan/faktur');
+        renderModuleOutput(els.outPenjualan, 'Daftar Faktur Penjualan', data);
+        setStatus(`Faktur dimuat (${data.length} entri)`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlPembelian.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/pembelian/orders');
+        renderModuleOutput(els.outPembelian, 'Daftar Order Pembelian', data);
+        setStatus(`Order pembelian dimuat (${data.length} entri)`);
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlNeracaSaldo.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/neraca-saldo');
+        renderModuleOutput(els.outLaporan, 'Laporan Neraca Saldo', data);
+        setStatus('Laporan neraca saldo dimuat');
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlLabaRugi.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/laba-rugi');
+        renderModuleOutput(els.outLaporan, 'Laporan Laba Rugi', data);
+        setStatus('Laporan laba rugi dimuat');
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlNeraca.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/neraca');
+        renderModuleOutput(els.outLaporan, 'Laporan Neraca', data);
+        setStatus('Laporan neraca dimuat');
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlRekapJual.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/rekap-penjualan');
+        renderModuleOutput(els.outPenjualan, 'Rekap Penjualan', data);
+        setStatus('Rekap penjualan dimuat');
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlRekapBeli.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/rekap-pembelian');
+        renderModuleOutput(els.outPembelian, 'Rekap Pembelian', data);
+        setStatus('Rekap pembelian dimuat');
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlRekapWeb.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/rekap-penjualan-website');
+        renderModuleOutput(els.outLaporan, 'Rekap Penjualan Website', data);
+        setStatus('Rekap penjualan website dimuat');
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnMdlFeatures.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/features');
+        renderModuleOutput(els.outLaporan, 'Daftar Fitur API', data);
+        setStatus('Daftar fitur API dimuat');
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnLogin.addEventListener('click', async () => {
+      try {
+        const result = await api('/api/auth/login', 'POST', {
+          role: 'auto',
+          username: els.loginUser.value.trim(),
+          password: els.loginPass.value,
+        });
+        authToken = result.token;
+        currentRole = result.role;
+        currentUser = result.username;
+        localStorage.setItem('sagara_auth_token', authToken);
+        localStorage.setItem('sagara_auth_role', currentRole);
+        localStorage.setItem('sagara_auth_user', currentUser);
+        currentCapabilities = result.capabilities || {
+          can_create_order: ['buyer', 'cashier', 'admin'].includes(currentRole),
+          can_process_order: ['cashier', 'admin'].includes(currentRole),
+          can_manage_produk: ['cashier', 'admin'].includes(currentRole),
+          can_cashier_sale: ['cashier', 'admin'].includes(currentRole),
+        };
+        setAuthUi();
+        setStatus(`Login berhasil sebagai ${result.role}: ${result.username}`);
+        scrollToRoleArea();
+      } catch (e) {
+        authToken = '';
+        currentRole = '';
+        currentUser = '';
+        resetCapabilities();
+        localStorage.removeItem('sagara_auth_token');
+        localStorage.removeItem('sagara_auth_role');
+        localStorage.removeItem('sagara_auth_user');
+        setAuthUi();
+        setStatus(e.message, false);
+      }
+    });
+
+    els.btnLogout.addEventListener('click', async () => {
+      try {
+        await api('/api/auth/logout', 'POST', {});
+      } catch (e) {
+        // Abaikan error logout agar token lokal tetap dibersihkan.
+      }
+      authToken = '';
+      currentRole = '';
+      currentUser = '';
+      resetCapabilities();
+      localStorage.removeItem('sagara_auth_token');
+      localStorage.removeItem('sagara_auth_role');
+      localStorage.removeItem('sagara_auth_user');
+      setAuthUi();
+      setStatus('Logout berhasil');
+    });
+
+    async function hydrateAuthState() {
+      if (!authToken) {
+        setAuthUi();
+        return;
+      }
+      try {
+        const me = await api('/api/auth/me');
+        currentRole = me.role;
+        currentUser = me.username;
+        currentCapabilities = me.capabilities || currentCapabilities;
+        setAuthUi();
+      } catch (e) {
+        authToken = '';
+        currentRole = '';
+        currentUser = '';
+        resetCapabilities();
+        localStorage.removeItem('sagara_auth_token');
+        localStorage.removeItem('sagara_auth_role');
+        localStorage.removeItem('sagara_auth_user');
+        setAuthUi();
+      }
+    }
+
+    (async function boot() {
+      try {
+        setToday();
+        startFlashCountdown();
+        applyLoginDefaults();
+        applyFocusRoleSuggestion();
+        await hydrateAuthState();
+        await loadMetaAndProducts();
+        drawDraft();
+        drawCashierDraft();
+        drawPenjualanDraft();
+        drawPembelianDraft();
+        await loadOrders();
+        if (authToken) {
+          setStatus(`Siap dipakai sebagai ${currentRole}`);
+        } else if (focusMode === 'process') {
+          setStatus('Mode kasir aktif. Silakan login sebagai kasir/admin untuk proses order.');
+          setActiveMainMenu('kasir');
+        } else if (focusMode === 'create') {
+          setStatus('Mode pembeli aktif. Silakan login sebagai pembeli untuk membuat order.');
+          setActiveMainMenu('website');
+        } else {
+          setStatus('Silakan login sebagai pembeli/kasir/admin');
+          const savedMenu = getSavedMainMenu();
+          setActiveMainMenu(savedMenu || 'website', false);
+        }
+        setupMainMenu();
+        scrollToRoleArea();
+      } catch (e) {
+        setStatus(e.message, false);
+      }
+    })();
+  </script>
+</body>
+</html>

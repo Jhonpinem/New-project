@@ -1,0 +1,1393 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Penjualan - SAGARA</title>
+  <style>
+    :root {
+      --bg: #f5f8ff;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --line: #dbe1ea;
+      --accent: #0f766e;
+      --accent2: #1d4ed8;
+      --ok: #166534;
+      --err: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, #e0f2fe 0, transparent 30%),
+        radial-gradient(circle at 100% 100%, #dcfce7 0, transparent 28%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1140px; margin: 20px auto; padding: 0 14px 24px; }
+    .top {
+      background: linear-gradient(135deg, #0f172a, #14532d);
+      color: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .top h1 { margin: 0; font-size: 20px; }
+    .top p { margin: 4px 0 0; font-size: 12px; opacity: .86; }
+    .top-actions { display: flex; gap: 8px; }
+    .link-btn, .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .link-btn { background: #fff; color: #111827; }
+    .btn { background: var(--accent); color: #fff; width: 100%; }
+    .btn.alt { background: var(--accent2); }
+    .btn.ghost { background: #fff; color: #1f2937; border: 1px solid #cbd5e1; }
+
+    .guard {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid #fecaca;
+      color: #7f1d1d;
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+    }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .card h2 { margin: 0 0 10px; font-size: 16px; }
+
+    .block {
+      border: 1px dashed #d1d5db;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fbfdff;
+    }
+    .block h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; color: #374151; }
+
+    label { font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 9px 10px;
+      font-size: 14px;
+      background: #fff;
+    }
+    textarea { min-height: 120px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .report-view {
+      margin-top: 10px;
+      min-height: 420px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px;
+      overflow: auto;
+    }
+    .report-title { margin: 0 0 4px; font-size: 18px; color: #14532d; }
+    .report-subtitle { margin: 0 0 10px; font-size: 12px; color: #475569; }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .summary-card {
+      background: #fff;
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      padding: 8px;
+    }
+    .summary-card .label { font-size: 11px; color: #475569; }
+    .summary-card .value { font-size: 14px; font-weight: 800; color: #0f172a; }
+    .report-section {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+    .report-section h3 { margin: 0 0 6px; font-size: 13px; color: #0f172a; }
+    .table-wrap { overflow-x: auto; }
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+      font-size: 13px;
+    }
+    .report-table th,
+    .report-table td {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 7px 8px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .draft-view .report-table tbody tr:focus-within td {
+      background: #ecfeff;
+      box-shadow: inset 0 0 0 1px #67e8f9;
+    }
+    .draft-view .report-table tbody tr:focus-within td:first-child {
+      border-left: 3px solid #06b6d4;
+    }
+    .report-table th { background: #ecfeff; color: #0f172a; }
+    .report-table tbody tr.active-piutang td {
+      background: #ecfdf5;
+      box-shadow: inset 0 0 0 1px #86efac;
+    }
+    .report-table tbody tr.active-piutang td:first-child {
+      border-left: 3px solid #16a34a;
+    }
+    .report-table td.num,
+    .report-table th.num { text-align: right; }
+    .draft-view {
+      min-height: 120px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+      overflow: auto;
+    }
+    .draft-empty {
+      color: #64748b;
+      font-size: 13px;
+      padding: 8px;
+    }
+    .draft-total {
+      margin-top: 8px;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .draft-hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #475569;
+    }
+    .btn-mini {
+      border: 1px solid #fecaca;
+      background: #fff;
+      color: #b91c1c;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-mini.danger {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+    .draft-input {
+      width: 92px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 5px 6px;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .status { margin-top: 8px; min-height: 20px; font-size: 13px; font-weight: 700; }
+    .ok { color: var(--ok); }
+    .err { color: var(--err); }
+
+    @media (max-width: 920px) {
+      .grid { grid-template-columns: 1fr; }
+      .row, .row3 { grid-template-columns: 1fr; }
+      .actions { grid-template-columns: 1fr 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <h1>Penjualan</h1>
+        <p>Halaman khusus transaksi dan master penjualan.</p>
+      </div>
+      <div class="top-actions">
+        <a class="link-btn" href="/">Dashboard</a>
+        <a class="link-btn" href="/pembelian.html">Pembelian</a>
+        <a class="link-btn" href="/laporan.html">Laporan</a>
+      </div>
+    </header>
+
+    <section class="guard" id="guardBox">
+      Akses halaman ini hanya untuk role kasir/admin.
+      Role login terdeteksi otomatis sesuai akun.
+      Silakan login via <a href="/login.html?role=cashier&next=/penjualan.html">halaman login</a>.
+    </section>
+
+    <section id="appArea">
+      <div class="grid">
+        <section class="card">
+          <div class="block">
+            <h3>Master Barang</h3>
+            <div class="row3">
+              <div><label>Kode Barang</label><input id="brgKode" placeholder="BRG-001"></div>
+              <div><label>Nama Barang</label><input id="brgNama" placeholder="Nama barang"></div>
+              <div><label>Satuan</label><input id="brgSatuan" value="pcs"></div>
+            </div>
+            <div class="row">
+              <div><label>URL Gambar</label><input id="brgImage" placeholder="https://.../produk.jpg"></div>
+              <div></div>
+            </div>
+            <div class="row3">
+              <div><label>Harga Jual</label><input id="brgHargaJual" type="number" value="0"></div>
+              <div><label>Harga Beli</label><input id="brgHargaBeli" type="number" value="0"></div>
+              <div><label>Stok Awal</label><input id="brgStok" type="number" value="0"></div>
+            </div>
+            <button class="btn alt" id="btnTambahBarang">Tambah Barang</button>
+          </div>
+
+          <div class="block">
+            <h3>Master Pelanggan</h3>
+            <div class="row">
+              <div><label>Kode Pelanggan</label><input id="plgKode" placeholder="PLG-001"></div>
+              <div><label>Nama Pelanggan</label><input id="plgNama" placeholder="Nama pelanggan"></div>
+            </div>
+            <div class="row3">
+              <div><label>Telepon</label><input id="plgTelp"></div>
+              <div><label>Email</label><input id="plgEmail"></div>
+              <div><label>Alamat</label><input id="plgAlamat"></div>
+            </div>
+            <button class="btn alt" id="btnTambahPelanggan">Tambah Pelanggan</button>
+          </div>
+
+          <div class="block">
+            <h3>Penjualan (Mode Kasir + Faktur)</h3>
+            <div class="row">
+              <div><label>Nomor Faktur</label><input id="fakturNo"></div>
+              <div><label>Tanggal</label><input id="fakturTgl" type="date"></div>
+            </div>
+            <div class="row3">
+              <div><label>Prefix Faktur</label><input id="fakturPrefix" value="FJ"></div>
+              <div><label>Jumlah Nomor</label><input id="fakturBatchCount" type="number" min="1" max="500" value="20"></div>
+              <div style="display:flex; align-items:flex-end;"><button class="btn ghost" id="btnGenerateFakturBatch">Generate Banyak Nomor</button></div>
+            </div>
+            <div class="row">
+              <div><label>Hasil Generate Nomor Faktur</label><textarea id="fakturBatchOutput" rows="4" readonly placeholder="Nomor faktur hasil generate akan tampil di sini"></textarea></div>
+              <div style="display:flex; align-items:flex-end;"><button class="btn ghost" id="btnUseFirstFaktur">Pakai Nomor Pertama</button></div>
+            </div>
+            <div class="row3">
+              <div><label>Kode Pelanggan</label><input id="fakturPelanggan"></div>
+              <div><label>PPN %</label><input id="fakturPpn" type="number" value="11"></div>
+              <div><label>Post No Faktur</label><input id="postNo"></div>
+            </div>
+            <div class="row">
+              <div><label>Cari Pelanggan</label><input id="kasirPelangganCari" placeholder="Ketik kode atau nama pelanggan"></div>
+              <div><label>Pilih Pelanggan</label><select id="kasirPelanggan"></select></div>
+            </div>
+            <div class="row">
+              <div><label>Nama Pembeli Kasir</label><input id="kasirPembeli" value="Pelanggan Toko"></div>
+              <div><label>Metode Bayar Kasir</label><select id="kasirMetode"></select></div>
+            </div>
+            <div class="row">
+              <div><label>Jumlah Bayar</label><input id="kasirBayar" type="number" value="0"></div>
+              <div><label>Sisa Hutang (otomatis)</label><input id="kasirHutang" type="number" value="0" readonly></div>
+            </div>
+            <div class="row3">
+              <div><label>Produk</label><select id="produk"></select></div>
+              <div><label>Qty</label><input id="qty" type="number" value="1"></div>
+              <div><label>Diskon %</label><input id="diskon" type="number" value="0"></div>
+            </div>
+            <div class="row">
+              <div><label>Harga</label><input id="harga" type="number" value="0"></div>
+              <div style="display:flex; align-items:flex-end;"><button class="btn ghost" id="btnAddDraft">Tambah Item</button></div>
+            </div>
+            <div id="draftView" class="draft-view"></div>
+            <div class="actions" style="margin-top:8px;">
+              <button class="btn alt" id="btnKasirJual">Proses Kasir Langsung</button>
+              <button class="btn" id="btnBuatFaktur">Buat Faktur</button>
+              <button class="btn alt" id="btnPostFaktur">Post Faktur</button>
+              <button class="btn ghost" id="btnResetDraft">Reset Draft</button>
+            </div>
+
+            <div class="row" style="margin-top:8px;">
+              <div><label>Nomor Piutang</label><input id="piutangNomor" placeholder="KSR-..."></div>
+              <div><label>Bayar Cicilan</label><input id="piutangBayar" type="number" value="0"></div>
+            </div>
+            <div class="row" style="margin-top:8px;">
+              <div><label>Metode Bayar Cicilan</label><select id="piutangMetode"></select></div>
+              <div></div>
+            </div>
+            <div class="actions" style="margin-top:8px; grid-template-columns: repeat(5, 1fr);">
+              <button class="btn ghost" id="btnListPiutang">Daftar Piutang</button>
+              <button class="btn ghost" id="btnRiwayatPiutang">Riwayat Cicilan</button>
+              <button class="btn ghost" id="btnSetLunas">Isi Sisa</button>
+              <button class="btn alt" id="btnLunasiPiutang">Lunasi</button>
+              <button class="btn" id="btnBayarPiutang">Bayar Cicilan</button>
+            </div>
+          </div>
+
+          <div id="status" class="status"></div>
+        </section>
+
+        <section class="card">
+          <h2>Output Penjualan</h2>
+          <div class="actions">
+            <button class="btn ghost" id="btnListProduk">Daftar Barang</button>
+            <button class="btn ghost" id="btnListPelanggan">Daftar Pelanggan</button>
+            <button class="btn ghost" id="btnListFaktur">Daftar Faktur</button>
+            <button class="btn ghost" id="btnRekapJual">Rekap Penjualan</button>
+          </div>
+          <div id="outputView" class="report-view"></div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const draftItems = [];
+    let activePiutangNomor = '';
+    let pelangganCache = [];
+    let fakturAutoSequence = 0;
+    let token = localStorage.getItem('sagara_auth_token') || '';
+
+    const els = {
+      appArea: document.getElementById('appArea'),
+      guardBox: document.getElementById('guardBox'),
+      status: document.getElementById('status'),
+      outputView: document.getElementById('outputView'),
+      brgKode: document.getElementById('brgKode'),
+      brgNama: document.getElementById('brgNama'),
+      brgSatuan: document.getElementById('brgSatuan'),
+      brgImage: document.getElementById('brgImage'),
+      brgHargaJual: document.getElementById('brgHargaJual'),
+      brgHargaBeli: document.getElementById('brgHargaBeli'),
+      brgStok: document.getElementById('brgStok'),
+      btnTambahBarang: document.getElementById('btnTambahBarang'),
+      plgKode: document.getElementById('plgKode'),
+      plgNama: document.getElementById('plgNama'),
+      plgTelp: document.getElementById('plgTelp'),
+      plgEmail: document.getElementById('plgEmail'),
+      plgAlamat: document.getElementById('plgAlamat'),
+      btnTambahPelanggan: document.getElementById('btnTambahPelanggan'),
+      fakturNo: document.getElementById('fakturNo'),
+      fakturTgl: document.getElementById('fakturTgl'),
+      fakturPrefix: document.getElementById('fakturPrefix'),
+      fakturBatchCount: document.getElementById('fakturBatchCount'),
+      fakturBatchOutput: document.getElementById('fakturBatchOutput'),
+      fakturPelanggan: document.getElementById('fakturPelanggan'),
+      fakturPpn: document.getElementById('fakturPpn'),
+      postNo: document.getElementById('postNo'),
+      kasirPelangganCari: document.getElementById('kasirPelangganCari'),
+      kasirPelanggan: document.getElementById('kasirPelanggan'),
+      kasirPembeli: document.getElementById('kasirPembeli'),
+      kasirMetode: document.getElementById('kasirMetode'),
+      kasirBayar: document.getElementById('kasirBayar'),
+      kasirHutang: document.getElementById('kasirHutang'),
+      produk: document.getElementById('produk'),
+      qty: document.getElementById('qty'),
+      diskon: document.getElementById('diskon'),
+      harga: document.getElementById('harga'),
+      btnAddDraft: document.getElementById('btnAddDraft'),
+      draftView: document.getElementById('draftView'),
+      btnKasirJual: document.getElementById('btnKasirJual'),
+      btnBuatFaktur: document.getElementById('btnBuatFaktur'),
+      btnPostFaktur: document.getElementById('btnPostFaktur'),
+      btnGenerateFakturBatch: document.getElementById('btnGenerateFakturBatch'),
+      btnUseFirstFaktur: document.getElementById('btnUseFirstFaktur'),
+      btnResetDraft: document.getElementById('btnResetDraft'),
+      piutangNomor: document.getElementById('piutangNomor'),
+      piutangBayar: document.getElementById('piutangBayar'),
+      piutangMetode: document.getElementById('piutangMetode'),
+      btnListPiutang: document.getElementById('btnListPiutang'),
+      btnRiwayatPiutang: document.getElementById('btnRiwayatPiutang'),
+      btnSetLunas: document.getElementById('btnSetLunas'),
+      btnLunasiPiutang: document.getElementById('btnLunasiPiutang'),
+      btnBayarPiutang: document.getElementById('btnBayarPiutang'),
+      btnListProduk: document.getElementById('btnListProduk'),
+      btnListPelanggan: document.getElementById('btnListPelanggan'),
+      btnListFaktur: document.getElementById('btnListFaktur'),
+      btnRekapJual: document.getElementById('btnRekapJual'),
+    };
+
+    function today() { return new Date().toISOString().slice(0, 10); }
+
+    function generateFakturNumber(prefix = 'FJ') {
+      const safePrefix = String(prefix || 'FJ').trim().toUpperCase().replaceAll(/[^A-Z0-9-]/g, '') || 'FJ';
+      const now = new Date();
+      const yyyymmdd = now.toISOString().slice(0, 10).replaceAll('-', '');
+      const hhmmss = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+      fakturAutoSequence = (fakturAutoSequence + 1) % 1000;
+      const seq = String(fakturAutoSequence).padStart(3, '0');
+      return `${safePrefix}-${yyyymmdd}-${hhmmss}${seq}`;
+    }
+
+    function generateManyFakturNumbers(total, prefix = 'FJ') {
+      const count = Math.max(1, Math.min(500, Number(total || 1)));
+      const result = [];
+      const seen = new Set();
+      while (result.length < count) {
+        const nomor = generateFakturNumber(prefix);
+        if (seen.has(nomor)) continue;
+        seen.add(nomor);
+        result.push(nomor);
+      }
+      return result;
+    }
+
+    function setStatus(msg, ok = true) {
+      els.status.textContent = msg;
+      els.status.className = `status ${ok ? 'ok' : 'err'}`;
+    }
+
+    function focusAndSelect(input) {
+      if (!(input instanceof HTMLInputElement)) return;
+      input.focus();
+      input.select();
+    }
+
+    function showGuard(show) {
+      els.guardBox.style.display = show ? 'block' : 'none';
+      els.appArea.style.display = show ? 'none' : 'block';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function fmtNumber(value) {
+      return Number(value || 0).toLocaleString('id-ID', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    }
+
+    function fmtInt(value) {
+      return Number(value || 0).toLocaleString('id-ID', { maximumFractionDigits: 0 });
+    }
+
+    function formatDate(value) {
+      if (!value) return '-';
+      const d = new Date(`${value}T00:00:00`);
+      if (Number.isNaN(d.getTime())) return value;
+      return d.toLocaleDateString('id-ID');
+    }
+
+    function periodeLabel(periode) {
+      const from = periode && periode.from;
+      const to = periode && periode.to;
+      if (from && to) return `${formatDate(from)} - ${formatDate(to)}`;
+      if (from) return `Mulai ${formatDate(from)}`;
+      if (to) return `Sampai ${formatDate(to)}`;
+      return 'Semua periode';
+    }
+
+    function renderTable(headers, rows, numericCols = []) {
+      const head = headers
+        .map((h, i) => `<th class="${numericCols.includes(i) ? 'num' : ''}">${escapeHtml(h)}</th>`)
+        .join('');
+      const body = rows.length
+        ? rows.map((row) => `<tr>${row.map((c, i) => `<td class="${numericCols.includes(i) ? 'num' : ''}">${escapeHtml(c)}</td>`).join('')}</tr>`).join('')
+        : `<tr><td colspan="${headers.length}">Tidak ada data</td></tr>`;
+
+      return `
+        <div class="table-wrap">
+          <table class="report-table">
+            <thead><tr>${head}</tr></thead>
+            <tbody>${body}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderOutput(title, subtitle, sections = [], summaries = []) {
+      const summaryHtml = summaries.length
+        ? `<div class="summary-grid">${summaries.map((s) => `
+            <div class="summary-card">
+              <div class="label">${escapeHtml(s.label)}</div>
+              <div class="value">${escapeHtml(s.value)}</div>
+            </div>
+          `).join('')}</div>`
+        : '';
+
+      const sectionHtml = sections.map((section) => `
+        <section class="report-section">
+          <h3>${escapeHtml(section.title)}</h3>
+          ${renderTable(section.headers, section.rows, section.numericCols || [])}
+        </section>
+      `).join('');
+
+      els.outputView.innerHTML = `
+        <h3 class="report-title">${escapeHtml(title)}</h3>
+        <p class="report-subtitle">${escapeHtml(subtitle)}</p>
+        ${summaryHtml}
+        ${sectionHtml}
+      `;
+    }
+
+    function renderPelanggan(rows) {
+      renderOutput(
+        'Daftar Pelanggan',
+        `Total pelanggan: ${fmtInt(rows.length)}`,
+        [{
+          title: 'Master Pelanggan',
+          headers: ['Kode', 'Nama', 'Telepon', 'Email', 'Alamat'],
+          rows: rows.map((r) => [r.kode || '-', r.nama || '-', r.telepon || '-', r.email || '-', r.alamat || '-']),
+        }]
+      );
+    }
+
+    function renderProduk(rows) {
+      renderOutput(
+        'Daftar Barang',
+        `Total barang: ${fmtInt(rows.length)}`,
+        [{
+          title: 'Master Barang',
+          headers: ['Kode', 'Nama', 'Gambar', 'Satuan', 'Stok', 'Harga Beli', 'Harga Jual', 'Aksi'],
+          rows: rows.map((r) => [
+            r.kode || '-',
+            r.nama || '-',
+            r.image_url ? `__IMG__${r.image_url}` : '-',
+            r.satuan || '-',
+            fmtInt(r.stok),
+            fmtNumber(r.harga_beli),
+            fmtNumber(r.harga_jual),
+            `__BTN_DELETE__${r.kode || ''}`,
+          ]),
+          numericCols: [4, 5, 6],
+        }]
+      );
+
+      // Replace marker with actual action buttons after generic renderer injects safe HTML.
+      const cells = els.outputView.querySelectorAll('td');
+      cells.forEach((cell) => {
+        const marker = cell.textContent || '';
+        if (marker.startsWith('__IMG__')) {
+          const imageUrl = marker.replace('__IMG__', '').trim();
+          cell.innerHTML = `<a href="${escapeHtml(imageUrl)}" target="_blank" rel="noopener noreferrer">Lihat Gambar</a>`;
+          return;
+        }
+        if (!marker.startsWith('__BTN_DELETE__')) return;
+        const kode = marker.replace('__BTN_DELETE__', '').trim();
+        cell.innerHTML = `<button class="btn-mini danger" data-delete-produk="${escapeHtml(kode)}">Hapus</button>`;
+      });
+    }
+
+    function renderFaktur(rows) {
+      renderOutput(
+        'Daftar Faktur',
+        'Histori transaksi penjualan',
+        [{
+          title: 'Faktur Penjualan',
+          headers: ['Nomor', 'Tanggal', 'Pelanggan', 'Total Bayar', 'Status'],
+          rows: rows.map((r) => [
+            r.nomor || '-',
+            formatDate(r.tanggal),
+            r.nama_pelanggan || '-',
+            fmtNumber(r.total_bayar),
+            r.status || '-',
+          ]),
+          numericCols: [3],
+        }],
+        [{
+          label: 'Total Faktur',
+          value: fmtInt(rows.length),
+        }]
+      );
+    }
+
+    function renderRekapPenjualan(data) {
+      renderOutput(
+        'Rekap Penjualan',
+        `Ringkasan pelanggan dan produk (${periodeLabel(data.periode)})`,
+        [
+          {
+            title: 'Per Pelanggan',
+            headers: ['Pelanggan', 'Jumlah Faktur', 'Total'],
+            rows: (data.per_pelanggan || []).map((r) => [r.pelanggan || '-', fmtInt(r.jumlah_faktur), fmtNumber(r.total)]),
+            numericCols: [1, 2],
+          },
+          {
+            title: 'Per Produk',
+            headers: ['Kode', 'Nama', 'Qty', 'Total Nilai'],
+            rows: (data.per_produk || []).map((r) => [r.kode || '-', r.nama || '-', fmtInt(r.total_qty), fmtNumber(r.total_nilai)]),
+            numericCols: [2, 3],
+          },
+        ]
+      );
+    }
+
+    function renderKasirResult(data) {
+      const order = data.order || {};
+      const items = Array.isArray(order.items) ? order.items : [];
+      renderOutput(
+        `Struk Kasir ${order.nomor || data.nomor || '-'}`,
+        `Status ${order.status || data.status || '-'} • Tanggal ${formatDate(order.tanggal || today())}`,
+        [
+          {
+            title: 'Ringkasan Transaksi',
+            headers: ['Kasir', 'Pembeli', 'Metode Bayar', 'Total Bayar'],
+            rows: [[
+              data.kasir || '-',
+              order.nama_penerima || '-',
+              data.metode_bayar || order.metode_bayar || '-',
+              fmtNumber(order.total_bayar || data.total_bayar || 0),
+            ]],
+            numericCols: [3],
+          },
+          {
+            title: 'Item Belanja',
+            headers: ['Kode', 'Nama', 'Qty', 'Harga', 'Diskon %', 'Subtotal'],
+            rows: items.map((item) => [
+              item.kode_produk || '-',
+              item.nama_produk || '-',
+              fmtInt(item.qty),
+              fmtNumber(item.harga_satuan),
+              fmtNumber(item.diskon_persen || 0),
+              fmtNumber(item.subtotal),
+            ]),
+            numericCols: [2, 3, 4, 5],
+          },
+          {
+            title: 'Pembayaran',
+            headers: ['Dibayar', 'Kembalian', 'Sisa Hutang'],
+            rows: [[
+              fmtNumber(order.jumlah_bayar || data.dibayar || 0),
+              fmtNumber(data.kembalian || 0),
+              fmtNumber(order.sisa_hutang || data.sisa_hutang || 0),
+            ]],
+            numericCols: [0, 1, 2],
+          },
+        ],
+        [
+          { label: 'Jumlah Item', value: fmtInt(items.length) },
+          { label: 'Total Bayar', value: fmtNumber(order.total_bayar || data.total_bayar || 0) },
+          { label: 'Status', value: order.status || data.status || '-' },
+        ]
+      );
+    }
+
+    function renderPiutang(rows) {
+      renderOutput(
+        'Daftar Piutang Kasir',
+        `Total piutang aktif: ${fmtInt(rows.length)}`,
+        [{
+          title: 'Piutang Penjualan',
+          headers: ['Nomor', 'Tanggal', 'Pembeli', 'Metode', 'Total', 'Dibayar', 'Sisa Hutang', 'Status', 'Aksi'],
+          rows: rows.map((r) => [
+            r.nomor || '-',
+            formatDate(r.tanggal),
+            r.nama_penerima || '-',
+            r.metode_bayar || '-',
+            fmtNumber(r.total_bayar),
+            fmtNumber(r.jumlah_bayar),
+            fmtNumber(r.sisa_hutang),
+            r.status || '-',
+            `__BTN_PIUTANG__${r.nomor || ''}__${Number(r.sisa_hutang || 0)}`,
+          ]),
+          numericCols: [4, 5, 6],
+        }]
+      );
+
+      const cells = els.outputView.querySelectorAll('td');
+      cells.forEach((cell) => {
+        const marker = cell.textContent || '';
+        if (!marker.startsWith('__BTN_PIUTANG__')) return;
+        const raw = marker.replace('__BTN_PIUTANG__', '');
+        const sepIndex = raw.indexOf('__');
+        if (sepIndex < 0) return;
+        const nomor = raw.slice(0, sepIndex).trim();
+        const sisa = Number(raw.slice(sepIndex + 2).trim() || 0);
+        cell.innerHTML = `<button class="btn-mini" data-select-piutang="${escapeHtml(nomor)}" data-select-sisa="${escapeHtml(sisa)}">Pilih</button>`;
+
+        const tr = cell.closest('tr');
+        if (tr) {
+          tr.classList.toggle('active-piutang', !!activePiutangNomor && nomor === activePiutangNomor);
+        }
+      });
+    }
+
+    function renderRiwayatPiutang(data) {
+      const order = data.order || {};
+      const rows = Array.isArray(data.pembayaran) ? data.pembayaran : [];
+      renderOutput(
+        `Riwayat Cicilan ${order.nomor || '-'}`,
+        `Pembeli ${order.nama_penerima || '-'} • Status ${order.status || '-'} • Sisa ${fmtNumber(order.sisa_hutang || 0)}`,
+        [{
+          title: 'Histori Pembayaran Piutang',
+          headers: ['Tanggal', 'Metode', 'Nominal', 'Keterangan'],
+          rows: rows.map((r) => [
+            formatDate(r.tanggal),
+            r.metode_bayar || '-',
+            fmtNumber(r.jumlah),
+            r.keterangan || '-',
+          ]),
+          numericCols: [2],
+        }],
+        [
+          { label: 'Total Cicilan', value: fmtInt(rows.length) },
+          { label: 'Total Bayar', value: fmtNumber(order.jumlah_bayar || 0) },
+          { label: 'Sisa Hutang', value: fmtNumber(order.sisa_hutang || 0) },
+        ]
+      );
+    }
+
+    async function getSisaPiutangByNomor(nomor) {
+      const data = await api(`/api/kasir/piutang/${encodeURIComponent(nomor)}/history`);
+      const order = data.order || {};
+      const sisa = Math.max(0, Number(order.sisa_hutang || 0));
+      return { sisa, history: data };
+    }
+
+    function calcDraftSubtotal(item) {
+      const qty = Number(item.qty || 0);
+      const harga = Number(item.harga_satuan || 0);
+      const diskon = Number(item.diskon_persen || 0);
+      return qty * harga * (1 - (diskon / 100));
+    }
+
+    function calcDraftGrandTotal() {
+      const subtotal = draftItems.reduce((sum, item) => sum + calcDraftSubtotal(item), 0);
+      const ppnPersen = Number(els.fakturPpn.value || 11);
+      const ppn = subtotal * (ppnPersen / 100);
+      return Math.max(0, subtotal + ppn);
+    }
+
+    function refreshCashierPaymentInfo() {
+      const total = calcDraftGrandTotal();
+      const dibayar = Math.max(0, Number(els.kasirBayar.value || 0));
+      const metode = String(els.kasirMetode.value || '').toLowerCase();
+      const isHutang = metode === 'hutang' || metode === 'tempo';
+      const sisa = isHutang ? Math.max(total - dibayar, 0) : 0;
+      els.kasirHutang.value = String(Math.round(sisa * 100) / 100);
+    }
+
+    function drawDraft() {
+      if (!draftItems.length) {
+        els.draftView.innerHTML = '<div class="draft-empty">Belum ada item draft.</div>';
+        return;
+      }
+
+      const rows = draftItems.map((item, index) => `
+        <tr>
+          <td>${escapeHtml(item.kode_produk || '-')}</td>
+          <td class="num"><input class="draft-input" type="number" min="1" step="1" value="${Number(item.qty || 0)}" data-edit-index="${index}" data-edit-field="qty"></td>
+          <td class="num"><input class="draft-input" type="number" min="0" step="100" value="${Number(item.harga_satuan || 0)}" data-edit-index="${index}" data-edit-field="harga_satuan"></td>
+          <td class="num"><input class="draft-input" type="number" min="0" max="100" step="0.01" value="${Number(item.diskon_persen || 0)}" data-edit-index="${index}" data-edit-field="diskon_persen"></td>
+          <td class="num">${fmtNumber(calcDraftSubtotal(item))}</td>
+          <td><button class="btn-mini" data-remove-index="${index}">Hapus</button></td>
+        </tr>
+      `).join('');
+
+      const total = draftItems.reduce((sum, item) => sum + calcDraftSubtotal(item), 0);
+
+      els.draftView.innerHTML = `
+        <div class="table-wrap">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Produk</th>
+                <th class="num">Qty</th>
+                <th class="num">Harga</th>
+                <th class="num">Diskon %</th>
+                <th class="num">Subtotal</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div class="draft-total">Total Draft: ${fmtNumber(total)}</div>
+        <div class="draft-hint">Shortcut: Enter untuk lanjut edit, Ctrl/Cmd+Delete untuk hapus baris aktif.</div>
+      `;
+      refreshCashierPaymentInfo();
+    }
+
+    function focusNextDraftInput(currentInput) {
+      const inputs = Array.from(els.draftView.querySelectorAll('.draft-input'));
+      const index = inputs.indexOf(currentInput);
+      if (index < 0) return;
+
+      if (index < inputs.length - 1) {
+        const nextInput = inputs[index + 1];
+        if (nextInput instanceof HTMLInputElement) {
+          nextInput.focus();
+          nextInput.select();
+        }
+        return;
+      }
+
+      currentInput.blur();
+    }
+
+    async function api(path, method = 'GET', body) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const r = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+      const data = await r.json();
+      if (!data.ok) throw new Error(data.error || 'Request gagal');
+      return data.data;
+    }
+
+    async function guardRole() {
+      if (!token) return false;
+      try {
+        const me = await api('/api/auth/me');
+        return me.role === 'cashier' || me.role === 'admin';
+      } catch {
+        return false;
+      }
+    }
+
+    function renderKasirPelangganOptions(customers, selectedKode = '', query = '') {
+      const q = String(query || '').trim().toLowerCase();
+      const rows = q
+        ? (customers || []).filter((c) => {
+            const hay = `${c.kode || ''} ${c.nama || ''}`.toLowerCase();
+            return hay.includes(q);
+          })
+        : (customers || []);
+
+      els.kasirPelanggan.innerHTML = '';
+      const emptyCustomer = document.createElement('option');
+      emptyCustomer.value = '';
+      emptyCustomer.textContent = '-- Umum / Tanpa Kode --';
+      els.kasirPelanggan.appendChild(emptyCustomer);
+
+      rows.forEach((c) => {
+        const op = document.createElement('option');
+        op.value = c.kode || '';
+        op.textContent = `${c.kode || '-'} - ${c.nama || '-'}`;
+        op.dataset.nama = c.nama || '';
+        els.kasirPelanggan.appendChild(op);
+      });
+
+      if (selectedKode) {
+        const exists = Array.from(els.kasirPelanggan.options).some((op) => op.value === selectedKode);
+        els.kasirPelanggan.value = exists ? selectedKode : '';
+      }
+    }
+
+    async function loadMetaAndProducts() {
+      const [meta, products, customers] = await Promise.all([
+        api('/api/meta'),
+        api('/api/produk'),
+        api('/api/penjualan/pelanggan'),
+      ]);
+
+      els.kasirMetode.innerHTML = '';
+      (meta.metode_bayar || []).forEach((m) => {
+        const op = document.createElement('option');
+        op.value = m;
+        op.textContent = m;
+        els.kasirMetode.appendChild(op);
+      });
+
+      const opHutang = document.createElement('option');
+      opHutang.value = 'Hutang';
+      opHutang.textContent = 'Hutang';
+      els.kasirMetode.appendChild(opHutang);
+
+      if (!els.kasirMetode.value) {
+        const fallback = document.createElement('option');
+        fallback.value = 'Transfer';
+        fallback.textContent = 'Transfer';
+        els.kasirMetode.appendChild(fallback);
+      }
+
+      const prevCustomer = String(els.kasirPelanggan.value || '').trim();
+      pelangganCache = Array.isArray(customers) ? customers : [];
+      renderKasirPelangganOptions(pelangganCache, prevCustomer, els.kasirPelangganCari.value);
+
+      els.piutangMetode.innerHTML = '';
+      ['Transfer', 'Cash', 'E-Wallet', 'Kartu Kredit'].forEach((m) => {
+        const op = document.createElement('option');
+        op.value = m;
+        op.textContent = m;
+        els.piutangMetode.appendChild(op);
+      });
+
+      els.produk.innerHTML = '';
+      products.forEach((p) => {
+        const op = document.createElement('option');
+        op.value = JSON.stringify({ kode: p.kode, harga: p.harga_jual });
+        op.textContent = `${p.kode} - ${p.nama}`;
+        els.produk.appendChild(op);
+      });
+      if (els.produk.value) {
+        try {
+          const p = JSON.parse(els.produk.value);
+          els.harga.value = Number(p.harga || 0);
+        } catch {
+          els.harga.value = 0;
+        }
+      }
+      refreshCashierPaymentInfo();
+    }
+
+    els.kasirPelanggan.addEventListener('change', () => {
+      const kode = String(els.kasirPelanggan.value || '').trim();
+      const selected = els.kasirPelanggan.selectedOptions[0];
+      const nama = selected ? String(selected.dataset.nama || '').trim() : '';
+
+      els.fakturPelanggan.value = kode;
+      if (nama) {
+        els.kasirPembeli.value = nama;
+      } else if (!els.kasirPembeli.value.trim()) {
+        els.kasirPembeli.value = 'Pelanggan Toko';
+      }
+    });
+
+    els.kasirPelangganCari.addEventListener('input', () => {
+      const currentSelected = String(els.kasirPelanggan.value || '').trim();
+      renderKasirPelangganOptions(pelangganCache, currentSelected, els.kasirPelangganCari.value);
+    });
+
+    els.kasirPelangganCari.addEventListener('keydown', (event) => {
+      const select = els.kasirPelanggan;
+      const maxIndex = Math.max(0, select.options.length - 1);
+      const current = Math.max(0, select.selectedIndex);
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        select.selectedIndex = Math.min(maxIndex, current + 1);
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
+      }
+
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        select.selectedIndex = Math.max(0, current - 1);
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
+      }
+
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        const chosen = String(select.value || '').trim();
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        if (chosen) {
+          setStatus(`Pelanggan ${chosen} dipilih lewat keyboard`);
+        }
+      }
+    });
+
+    els.produk.addEventListener('change', () => {
+      try {
+        const p = JSON.parse(els.produk.value || '{}');
+        els.harga.value = Number(p.harga || 0);
+      } catch {
+        els.harga.value = 0;
+      }
+    });
+
+    els.kasirBayar.addEventListener('input', refreshCashierPaymentInfo);
+    els.kasirMetode.addEventListener('change', refreshCashierPaymentInfo);
+    els.fakturPpn.addEventListener('input', refreshCashierPaymentInfo);
+
+    els.fakturPelanggan.addEventListener('input', () => {
+      const kode = String(els.fakturPelanggan.value || '').trim();
+      if (!kode) {
+        els.kasirPelanggan.value = '';
+        return;
+      }
+      const exists = Array.from(els.kasirPelanggan.options).some((op) => op.value === kode);
+      if (exists) {
+        els.kasirPelanggan.value = kode;
+      }
+    });
+
+    els.btnTambahPelanggan.addEventListener('click', async () => {
+      try {
+        const payload = {
+          kode: els.plgKode.value.trim(),
+          nama: els.plgNama.value.trim(),
+          telepon: els.plgTelp.value.trim(),
+          email: els.plgEmail.value.trim(),
+          alamat: els.plgAlamat.value.trim(),
+        };
+        if (!payload.kode || !payload.nama) throw new Error('Kode dan nama pelanggan wajib diisi');
+        const r = await api('/api/penjualan/pelanggan', 'POST', payload);
+        setStatus(`Pelanggan ${r.kode} ditambahkan`);
+        await loadMetaAndProducts();
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnTambahBarang.addEventListener('click', async () => {
+      try {
+        const payload = {
+          kode: els.brgKode.value.trim(),
+          nama: els.brgNama.value.trim(),
+          satuan: els.brgSatuan.value.trim() || 'pcs',
+          image_url: String(els.brgImage.value || '').trim(),
+          harga_jual: Number(els.brgHargaJual.value || 0),
+          harga_beli: Number(els.brgHargaBeli.value || 0),
+          stok: Number(els.brgStok.value || 0),
+        };
+        if (!payload.kode || !payload.nama) throw new Error('Kode dan nama barang wajib diisi');
+        const r = await api('/api/produk', 'POST', payload);
+        setStatus(`Barang ${r.kode} ditambahkan`);
+        await loadMetaAndProducts();
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnKasirJual.addEventListener('click', async () => {
+      try {
+        if (!draftItems.length) throw new Error('Draft kosong');
+        const payload = {
+          nomor: (els.fakturNo.value || '').trim() || `KSR-${Date.now()}`,
+          tanggal: els.fakturTgl.value || today(),
+          nama_penerima: els.kasirPembeli.value.trim() || 'Pelanggan Toko',
+          kode_pelanggan: String(els.kasirPelanggan.value || '').trim() || null,
+          metode_bayar: els.kasirMetode.value || 'Transfer',
+          jumlah_bayar: Number(els.kasirBayar.value || 0),
+          ppn_persen: Number(els.fakturPpn.value || 11),
+          detail: draftItems,
+        };
+        const r = await api('/api/kasir/sales', 'POST', payload);
+        renderKasirResult(r);
+        setStatus(`Transaksi kasir ${r.nomor} selesai. Total ${fmtNumber(r.total_bayar)}`);
+        draftItems.length = 0;
+        drawDraft();
+        els.fakturNo.value = `KSR-${Date.now()}`;
+        els.kasirBayar.value = '0';
+        refreshCashierPaymentInfo();
+        await loadMetaAndProducts();
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnAddDraft.addEventListener('click', () => {
+      try {
+        const selected = els.produk.value;
+        if (!selected) throw new Error('Pilih produk dulu');
+        const p = JSON.parse(selected);
+        const qty = Number(els.qty.value || 0);
+        if (qty <= 0) throw new Error('Qty harus > 0');
+        draftItems.push({
+          kode_produk: p.kode,
+          qty,
+          harga_satuan: Number(els.harga.value || 0),
+          diskon_persen: Number(els.diskon.value || 0),
+        });
+        drawDraft();
+        focusAndSelect(els.qty);
+        setStatus('Item ditambahkan ke draft');
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.draftView.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      const index = Number(target.getAttribute('data-remove-index'));
+      if (Number.isNaN(index)) return;
+      draftItems.splice(index, 1);
+      drawDraft();
+      setStatus('Item draft dihapus.');
+    });
+
+    els.draftView.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) return;
+
+      const index = Number(target.getAttribute('data-edit-index'));
+      const field = String(target.getAttribute('data-edit-field') || '');
+      if (Number.isNaN(index) || !draftItems[index]) return;
+
+      let value = Number(target.value || 0);
+      if (field === 'qty') {
+        value = Math.max(1, Math.round(value));
+      } else if (field === 'harga_satuan') {
+        value = Math.max(0, value);
+      } else if (field === 'diskon_persen') {
+        value = Math.min(100, Math.max(0, value));
+      } else {
+        return;
+      }
+
+      draftItems[index][field] = value;
+      drawDraft();
+      setStatus('Draft diperbarui.');
+    });
+
+    els.draftView.addEventListener('keydown', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) return;
+
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        target.dispatchEvent(new Event('change', { bubbles: true }));
+        focusNextDraftInput(target);
+        return;
+      }
+
+      if (event.key === 'Delete' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        const index = Number(target.getAttribute('data-edit-index'));
+        if (Number.isNaN(index) || !draftItems[index]) return;
+        draftItems.splice(index, 1);
+        drawDraft();
+        setStatus('Item draft dihapus (shortcut).');
+      }
+    });
+
+    els.outputView.addEventListener('click', async (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      const selectNomor = String(target.getAttribute('data-select-piutang') || '').trim();
+      if (selectNomor) {
+        const sisa = Number(target.getAttribute('data-select-sisa') || 0);
+        activePiutangNomor = selectNomor;
+        els.piutangNomor.value = selectNomor;
+        els.piutangBayar.value = String(Math.round(Math.max(0, sisa) * 100) / 100);
+        try {
+          const history = await api(`/api/kasir/piutang/${encodeURIComponent(selectNomor)}/history`);
+          renderRiwayatPiutang(history);
+          setStatus(`Piutang ${selectNomor} dipilih. Riwayat cicilan dimuat otomatis.`);
+        } catch (error) {
+          setStatus(`Piutang ${selectNomor} dipilih. Gagal muat riwayat: ${error.message}`, false);
+        }
+        return;
+      }
+
+      const kode = String(target.getAttribute('data-delete-produk') || '').trim();
+      if (!kode) return;
+
+      const confirmed = window.confirm(`Hapus barang ${kode}?`);
+      if (!confirmed) return;
+
+      try {
+        await api(`/api/produk/${encodeURIComponent(kode)}`, 'DELETE');
+        setStatus(`Barang ${kode} dihapus.`);
+        await loadMetaAndProducts();
+        renderProduk(await api('/api/produk'));
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnBuatFaktur.addEventListener('click', async () => {
+      try {
+        if (!draftItems.length) throw new Error('Draft kosong');
+        const payload = {
+          nomor: els.fakturNo.value.trim(),
+          tanggal: els.fakturTgl.value || today(),
+          kode_pelanggan: els.fakturPelanggan.value.trim() || null,
+          ppn_persen: Number(els.fakturPpn.value || 11),
+          detail: draftItems,
+        };
+        if (!payload.nomor) throw new Error('Nomor faktur wajib diisi');
+        const r = await api('/api/penjualan/faktur', 'POST', payload);
+        els.postNo.value = r.nomor;
+        setStatus(`Faktur ${r.nomor} dibuat`);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnPostFaktur.addEventListener('click', async () => {
+      try {
+        const nomor = els.postNo.value.trim() || els.fakturNo.value.trim();
+        if (!nomor) throw new Error('Nomor faktur post wajib diisi');
+        await api(`/api/penjualan/faktur/${encodeURIComponent(nomor)}/post`, 'POST', {});
+        setStatus(`Faktur ${nomor} diposting`);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnResetDraft.addEventListener('click', () => {
+      draftItems.length = 0;
+      drawDraft();
+      refreshCashierPaymentInfo();
+      setStatus('Draft direset');
+    });
+
+    els.btnGenerateFakturBatch.addEventListener('click', () => {
+      try {
+        const prefix = els.fakturPrefix.value || 'FJ';
+        const count = Number(els.fakturBatchCount.value || 1);
+        if (!Number.isFinite(count) || count <= 0) throw new Error('Jumlah nomor harus lebih besar dari 0');
+
+        const list = generateManyFakturNumbers(count, prefix);
+        els.fakturBatchOutput.value = list.join('\n');
+        if (!els.fakturNo.value && list.length) els.fakturNo.value = list[0];
+        setStatus(`Berhasil generate ${fmtInt(list.length)} nomor faktur`);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnUseFirstFaktur.addEventListener('click', () => {
+      const lines = String(els.fakturBatchOutput.value || '')
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean);
+      if (!lines.length) {
+        setStatus('Belum ada hasil generate nomor faktur', false);
+        return;
+      }
+      const [first, ...rest] = lines;
+      els.fakturNo.value = first;
+      els.fakturBatchOutput.value = rest.join('\n');
+      setStatus(`Nomor ${first} dipakai ke form faktur`);
+    });
+
+    els.btnListPiutang.addEventListener('click', async () => {
+      try {
+        const inputNomor = String(els.piutangNomor.value || '').trim();
+        if (inputNomor) activePiutangNomor = inputNomor;
+        const data = await api('/api/kasir/piutang');
+        renderPiutang(data);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnRiwayatPiutang.addEventListener('click', async () => {
+      try {
+        const nomor = String(els.piutangNomor.value || '').trim();
+        if (!nomor) throw new Error('Nomor piutang wajib diisi');
+        const data = await api(`/api/kasir/piutang/${encodeURIComponent(nomor)}/history`);
+        renderRiwayatPiutang(data);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnSetLunas.addEventListener('click', async () => {
+      try {
+        const nomor = String(els.piutangNomor.value || '').trim();
+        if (!nomor) throw new Error('Nomor piutang wajib diisi');
+        activePiutangNomor = nomor;
+        const { sisa } = await getSisaPiutangByNomor(nomor);
+        els.piutangBayar.value = String(Math.round(sisa * 100) / 100);
+        setStatus(`Nominal pelunasan ${nomor} diisi otomatis: ${fmtNumber(sisa)}`);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnLunasiPiutang.addEventListener('click', async () => {
+      try {
+        const nomor = String(els.piutangNomor.value || '').trim();
+        if (!nomor) throw new Error('Nomor piutang wajib diisi');
+        activePiutangNomor = nomor;
+
+        const { sisa } = await getSisaPiutangByNomor(nomor);
+        if (sisa <= 0) throw new Error(`Piutang ${nomor} sudah lunas`);
+
+        const result = await api(`/api/kasir/piutang/${encodeURIComponent(nomor)}/pay`, 'POST', {
+          jumlah_bayar: sisa,
+          metode_bayar: els.piutangMetode.value || 'Transfer',
+          tanggal: today(),
+        });
+
+        els.piutangBayar.value = '0';
+        setStatus(`Piutang ${nomor} berhasil dilunasi. Sisa hutang ${fmtNumber(result.sisa_hutang)}`);
+        const data = await api('/api/kasir/piutang');
+        renderPiutang(data);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnBayarPiutang.addEventListener('click', async () => {
+      try {
+        const nomor = String(els.piutangNomor.value || '').trim();
+        const nominal = Number(els.piutangBayar.value || 0);
+        if (!nomor) throw new Error('Nomor piutang wajib diisi');
+        if (!Number.isFinite(nominal) || nominal <= 0) throw new Error('Nominal cicilan harus > 0');
+        activePiutangNomor = nomor;
+
+        const result = await api(`/api/kasir/piutang/${encodeURIComponent(nomor)}/pay`, 'POST', {
+          jumlah_bayar: nominal,
+          metode_bayar: els.piutangMetode.value || 'Transfer',
+          tanggal: today(),
+        });
+        setStatus(`Cicilan ${nomor} berhasil dicatat. Sisa hutang ${fmtNumber(result.sisa_hutang)}`);
+        const data = await api('/api/kasir/piutang');
+        renderPiutang(data);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnListPelanggan.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/penjualan/pelanggan');
+        renderPelanggan(data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnListProduk.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/produk');
+        renderProduk(data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnListFaktur.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/penjualan/faktur');
+        renderFaktur(data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnRekapJual.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/rekap-penjualan');
+        renderRekapPenjualan(data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    (async function boot() {
+      els.fakturTgl.value = today();
+      if (!els.fakturNo.value) els.fakturNo.value = generateFakturNumber(els.fakturPrefix.value || 'FJ');
+      drawDraft();
+      const allowed = await guardRole();
+      if (!allowed) {
+        showGuard(true);
+        return;
+      }
+      showGuard(false);
+      try {
+        await loadMetaAndProducts();
+        setStatus('Penjualan siap digunakan');
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    })();
+  </script>
+</body>
+</html>

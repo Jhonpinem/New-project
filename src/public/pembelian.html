@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pembelian - SAGARA</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --line: #dce1ea;
+      --accent: #1d4ed8;
+      --accent2: #0f766e;
+      --ok: #166534;
+      --err: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, #e0e7ff 0, transparent 30%),
+        radial-gradient(circle at 100% 100%, #cffafe 0, transparent 28%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1140px; margin: 20px auto; padding: 0 14px 24px; }
+    .top {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .top h1 { margin: 0; font-size: 20px; }
+    .top p { margin: 4px 0 0; font-size: 12px; opacity: .86; }
+    .top-actions { display: flex; gap: 8px; }
+    .link-btn, .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .link-btn { background: #fff; color: #111827; }
+    .btn { background: var(--accent); color: #fff; width: 100%; }
+    .btn.alt { background: var(--accent2); }
+    .btn.ghost { background: #fff; color: #1f2937; border: 1px solid #cbd5e1; }
+
+    .guard {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid #fecaca;
+      color: #7f1d1d;
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+    }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+    .card h2 { margin: 0 0 10px; font-size: 16px; }
+
+    .block {
+      border: 1px dashed #d1d5db;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fbfdff;
+    }
+    .block h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; color: #374151; }
+
+    label { font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 9px 10px;
+      font-size: 14px;
+      background: #fff;
+    }
+    textarea { min-height: 120px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .report-view {
+      margin-top: 10px;
+      min-height: 420px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px;
+      overflow: auto;
+    }
+    .report-title { margin: 0 0 4px; font-size: 18px; color: #1e3a8a; }
+    .report-subtitle { margin: 0 0 10px; font-size: 12px; color: #475569; }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .summary-card {
+      background: #fff;
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      padding: 8px;
+    }
+    .summary-card .label { font-size: 11px; color: #475569; }
+    .summary-card .value { font-size: 14px; font-weight: 800; color: #0f172a; }
+    .report-section {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+    .report-section h3 { margin: 0 0 6px; font-size: 13px; color: #0f172a; }
+    .table-wrap { overflow-x: auto; }
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+      font-size: 13px;
+    }
+    .report-table th,
+    .report-table td {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 7px 8px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .draft-view .report-table tbody tr:focus-within td {
+      background: #eff6ff;
+      box-shadow: inset 0 0 0 1px #93c5fd;
+    }
+    .draft-view .report-table tbody tr:focus-within td:first-child {
+      border-left: 3px solid #3b82f6;
+    }
+    .report-table th { background: #eff6ff; color: #0f172a; }
+    .report-table td.num,
+    .report-table th.num { text-align: right; }
+    .draft-view {
+      min-height: 120px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+      overflow: auto;
+      margin-top: 8px;
+    }
+    .draft-empty {
+      color: #64748b;
+      font-size: 13px;
+      padding: 8px;
+    }
+    .draft-total {
+      margin-top: 8px;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .draft-hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .tiny {
+      font-size: 11px;
+      color: #475569;
+      margin-top: 5px;
+    }
+    .checkout-summary {
+      margin-top: 8px;
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+    }
+    .checkout-summary h4 {
+      margin: 0 0 8px;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #1e3a8a;
+      letter-spacing: .02em;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      padding: 3px 0;
+      color: #334155;
+    }
+    .summary-row.total {
+      margin-top: 4px;
+      padding-top: 7px;
+      border-top: 1px dashed #cbd5e1;
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .btn-mini {
+      border: 1px solid #fecaca;
+      background: #fff;
+      color: #b91c1c;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-mini.danger {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+    .draft-input {
+      width: 92px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 5px 6px;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .status { margin-top: 8px; min-height: 20px; font-size: 13px; font-weight: 700; }
+    .ok { color: var(--ok); }
+    .err { color: var(--err); }
+
+    @media (max-width: 920px) {
+      .grid { grid-template-columns: 1fr; }
+      .row, .row3 { grid-template-columns: 1fr; }
+      .actions { grid-template-columns: 1fr 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <h1>Pembelian</h1>
+        <p>Halaman khusus transaksi pembelian dan master pemasok.</p>
+      </div>
+      <div class="top-actions">
+        <a class="link-btn" href="/">Dashboard</a>
+        <a class="link-btn" href="/penjualan.html">Penjualan</a>
+        <a class="link-btn" href="/laporan.html">Laporan</a>
+      </div>
+    </header>
+
+    <section class="guard" id="guardBox">
+      Akses halaman ini hanya untuk role kasir/admin.
+      Role login terdeteksi otomatis sesuai akun.
+      Silakan login via <a href="/login.html?role=cashier&next=/pembelian.html">halaman login</a>.
+    </section>
+
+    <section id="appArea">
+      <div class="grid">
+        <section class="card">
+          <div class="block">
+            <h3>Master Barang</h3>
+            <div class="row3">
+              <div><label>Kode Barang</label><input id="brgKode" placeholder="BRG-001"></div>
+              <div><label>Nama Barang</label><input id="brgNama" placeholder="Nama barang"></div>
+              <div><label>Satuan</label><input id="brgSatuan" value="pcs"></div>
+            </div>
+            <div class="row">
+              <div><label>URL Gambar</label><input id="brgImage" placeholder="https://.../produk.jpg"></div>
+              <div></div>
+            </div>
+            <div class="row3">
+              <div><label>Harga Beli</label><input id="brgHargaBeli" type="number" value="0"></div>
+              <div><label>Harga Jual</label><input id="brgHargaJual" type="number" value="0"></div>
+              <div><label>Stok Awal</label><input id="brgStok" type="number" value="0"></div>
+            </div>
+            <button class="btn alt" id="btnTambahBarang">Tambah Barang</button>
+          </div>
+
+          <div class="block">
+            <h3>Master Pemasok</h3>
+            <div class="row">
+              <div><label>Kode Pemasok</label><input id="supKode" placeholder="SUP-001"></div>
+              <div><label>Nama Pemasok</label><input id="supNama"></div>
+            </div>
+            <div class="row3">
+              <div><label>Platform</label><select id="supPlatform"></select></div>
+              <div><label>Telepon</label><input id="supTelp"></div>
+              <div><label>Email</label><input id="supEmail"></div>
+            </div>
+            <div class="row">
+              <div><label>Alamat</label><input id="supAlamat"></div>
+              <div style="display:flex; align-items:flex-end;"><button class="btn alt" id="btnTambahPemasok">Tambah Pemasok</button></div>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>Order Pembelian</h3>
+            <div class="row">
+              <div><label>Nomor Order</label><input id="noOrder"></div>
+              <div><label>Tanggal</label><input id="tglOrder" type="date"></div>
+            </div>
+            <div class="row3">
+              <div><label>Platform</label><select id="platform"></select></div>
+              <div><label>Metode Bayar</label><select id="metode"></select></div>
+              <div><label>Kode Pemasok</label><input id="kodePemasok"></div>
+            </div>
+            <div class="row3">
+              <div><label>Produk</label><select id="produk"></select></div>
+              <div><label>Qty</label><input id="qty" type="number" value="1"></div>
+              <div><label>Harga</label><input id="harga" type="number" value="0"></div>
+            </div>
+            <button class="btn ghost" id="btnAddDraft">Tambah Item</button>
+            <div class="row3" style="margin-top:8px;">
+              <div><label>Ongkir</label><input id="ongkir" type="number" value="0"></div>
+              <div><label>Diskon</label><input id="diskon" type="number" value="0"></div>
+              <div><label>Post/Detail No</label><input id="postNo"></div>
+            </div>
+            <div id="draftView" class="draft-view"></div>
+            <div id="checkoutSummary" class="checkout-summary"></div>
+            <div class="tiny">Tip: tambah produk ke draft lalu buat order.</div>
+            <div class="actions" style="margin-top:8px;">
+              <button class="btn" id="btnBuatOrder">Buat Order</button>
+              <button class="btn alt" id="btnPostOrder">Post Order</button>
+              <button class="btn ghost" id="btnDetailOrder">Detail Order</button>
+            </div>
+          </div>
+
+          <div id="status" class="status"></div>
+        </section>
+
+        <section class="card">
+          <h2>Output Pembelian</h2>
+          <div class="actions">
+            <button class="btn ghost" id="btnListProduk">Daftar Barang</button>
+            <button class="btn ghost" id="btnListPemasok">Daftar Pemasok</button>
+            <button class="btn ghost" id="btnListOrder">Daftar Order</button>
+            <button class="btn ghost" id="btnRekapBeli">Rekap Pembelian</button>
+          </div>
+          <div id="outputView" class="report-view"></div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const draftItems = [];
+    let token = localStorage.getItem('sagara_auth_token') || '';
+
+    const els = {
+      appArea: document.getElementById('appArea'),
+      guardBox: document.getElementById('guardBox'),
+      status: document.getElementById('status'),
+      outputView: document.getElementById('outputView'),
+      brgKode: document.getElementById('brgKode'),
+      brgNama: document.getElementById('brgNama'),
+      brgSatuan: document.getElementById('brgSatuan'),
+      brgImage: document.getElementById('brgImage'),
+      brgHargaBeli: document.getElementById('brgHargaBeli'),
+      brgHargaJual: document.getElementById('brgHargaJual'),
+      brgStok: document.getElementById('brgStok'),
+      btnTambahBarang: document.getElementById('btnTambahBarang'),
+      supKode: document.getElementById('supKode'),
+      supNama: document.getElementById('supNama'),
+      supPlatform: document.getElementById('supPlatform'),
+      supTelp: document.getElementById('supTelp'),
+      supEmail: document.getElementById('supEmail'),
+      supAlamat: document.getElementById('supAlamat'),
+      btnTambahPemasok: document.getElementById('btnTambahPemasok'),
+      noOrder: document.getElementById('noOrder'),
+      tglOrder: document.getElementById('tglOrder'),
+      platform: document.getElementById('platform'),
+      metode: document.getElementById('metode'),
+      kodePemasok: document.getElementById('kodePemasok'),
+      produk: document.getElementById('produk'),
+      qty: document.getElementById('qty'),
+      harga: document.getElementById('harga'),
+      ongkir: document.getElementById('ongkir'),
+      diskon: document.getElementById('diskon'),
+      postNo: document.getElementById('postNo'),
+      btnAddDraft: document.getElementById('btnAddDraft'),
+      draftView: document.getElementById('draftView'),
+      checkoutSummary: document.getElementById('checkoutSummary'),
+      btnBuatOrder: document.getElementById('btnBuatOrder'),
+      btnPostOrder: document.getElementById('btnPostOrder'),
+      btnDetailOrder: document.getElementById('btnDetailOrder'),
+      btnListProduk: document.getElementById('btnListProduk'),
+      btnListPemasok: document.getElementById('btnListPemasok'),
+      btnListOrder: document.getElementById('btnListOrder'),
+      btnRekapBeli: document.getElementById('btnRekapBeli'),
+    };
+
+    function today() { return new Date().toISOString().slice(0, 10); }
+
+    function setStatus(msg, ok = true) {
+      els.status.textContent = msg;
+      els.status.className = `status ${ok ? 'ok' : 'err'}`;
+    }
+
+    function focusAndSelect(input) {
+      if (!(input instanceof HTMLInputElement)) return;
+      input.focus();
+      input.select();
+    }
+
+    function showGuard(show) {
+      els.guardBox.style.display = show ? 'block' : 'none';
+      els.appArea.style.display = show ? 'none' : 'block';
+    }
+
+    function calcDraftSubtotal(item) {
+      return Number(item.qty || 0) * Number(item.harga_satuan || 0);
+    }
+
+    function drawDraft() {
+      if (!draftItems.length) {
+        els.draftView.innerHTML = '<div class="draft-empty">Belum ada item draft.</div>';
+        return;
+      }
+
+      const rows = draftItems.map((item, index) => `
+        <tr>
+          <td>${escapeHtml(item.kode_produk || '-')}</td>
+          <td class="num"><input class="draft-input" type="number" min="1" step="1" value="${Number(item.qty || 0)}" data-edit-index="${index}" data-edit-field="qty"></td>
+          <td class="num"><input class="draft-input" type="number" min="0" step="100" value="${Number(item.harga_satuan || 0)}" data-edit-index="${index}" data-edit-field="harga_satuan"></td>
+          <td class="num">${fmtNumber(calcDraftSubtotal(item))}</td>
+          <td><button class="btn-mini" data-remove-index="${index}">Hapus</button></td>
+        </tr>
+      `).join('');
+
+      const total = draftItems.reduce((sum, item) => sum + calcDraftSubtotal(item), 0);
+
+      els.draftView.innerHTML = `
+        <div class="table-wrap">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Produk</th>
+                <th class="num">Qty</th>
+                <th class="num">Harga</th>
+                <th class="num">Subtotal</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div class="draft-total">Total Draft: ${fmtNumber(total)}</div>
+        <div class="draft-hint">Shortcut: Enter untuk lanjut edit, Ctrl/Cmd+Delete untuk hapus baris aktif.</div>
+      `;
+    }
+
+    function focusNextDraftInput(currentInput) {
+      const inputs = Array.from(els.draftView.querySelectorAll('.draft-input'));
+      const index = inputs.indexOf(currentInput);
+      if (index < 0) return;
+
+      if (index < inputs.length - 1) {
+        const nextInput = inputs[index + 1];
+        if (nextInput instanceof HTMLInputElement) {
+          nextInput.focus();
+          nextInput.select();
+        }
+        return;
+      }
+
+      currentInput.blur();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function fmtNumber(value) {
+      return Number(value || 0).toLocaleString('id-ID', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    }
+
+    function fmtInt(value) {
+      return Number(value || 0).toLocaleString('id-ID', { maximumFractionDigits: 0 });
+    }
+
+    function formatDate(value) {
+      if (!value) return '-';
+      const d = new Date(`${value}T00:00:00`);
+      if (Number.isNaN(d.getTime())) return value;
+      return d.toLocaleDateString('id-ID');
+    }
+
+    function renderCheckoutSummary() {
+      const totalQty = draftItems.reduce((sum, item) => sum + Math.max(0, Number(item.qty || 0)), 0);
+      const subtotalBarang = draftItems.reduce((sum, item) => sum + calcDraftSubtotal(item), 0);
+      const ongkir = Math.max(0, Number(els.ongkir.value || 0));
+      const diskon = Math.max(0, Number(els.diskon.value || 0));
+      const totalBayar = Math.max(0, subtotalBarang + ongkir - diskon);
+
+      els.checkoutSummary.innerHTML = `
+        <h4>Ringkasan Checkout</h4>
+        <div class="summary-row"><span>Total Item</span><strong>${fmtInt(totalQty)} pcs</strong></div>
+        <div class="summary-row"><span>Subtotal Barang</span><strong>Rp ${fmtNumber(subtotalBarang)}</strong></div>
+        <div class="summary-row"><span>Ongkir</span><strong>Rp ${fmtNumber(ongkir)}</strong></div>
+        <div class="summary-row"><span>Diskon</span><strong>- Rp ${fmtNumber(diskon)}</strong></div>
+        <div class="summary-row total"><span>Estimasi Total Bayar</span><strong>Rp ${fmtNumber(totalBayar)}</strong></div>
+      `;
+    }
+
+    function periodeLabel(periode) {
+      const from = periode && periode.from;
+      const to = periode && periode.to;
+      if (from && to) return `${formatDate(from)} - ${formatDate(to)}`;
+      if (from) return `Mulai ${formatDate(from)}`;
+      if (to) return `Sampai ${formatDate(to)}`;
+      return 'Semua periode';
+    }
+
+    function renderTable(headers, rows, numericCols = []) {
+      const head = headers
+        .map((h, i) => `<th class="${numericCols.includes(i) ? 'num' : ''}">${escapeHtml(h)}</th>`)
+        .join('');
+      const body = rows.length
+        ? rows.map((row) => `<tr>${row.map((c, i) => `<td class="${numericCols.includes(i) ? 'num' : ''}">${escapeHtml(c)}</td>`).join('')}</tr>`).join('')
+        : `<tr><td colspan="${headers.length}">Tidak ada data</td></tr>`;
+
+      return `
+        <div class="table-wrap">
+          <table class="report-table">
+            <thead><tr>${head}</tr></thead>
+            <tbody>${body}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderOutput(title, subtitle, sections = [], summaries = []) {
+      const summaryHtml = summaries.length
+        ? `<div class="summary-grid">${summaries.map((s) => `
+            <div class="summary-card">
+              <div class="label">${escapeHtml(s.label)}</div>
+              <div class="value">${escapeHtml(s.value)}</div>
+            </div>
+          `).join('')}</div>`
+        : '';
+
+      const sectionHtml = sections.map((section) => `
+        <section class="report-section">
+          <h3>${escapeHtml(section.title)}</h3>
+          ${renderTable(section.headers, section.rows, section.numericCols || [])}
+        </section>
+      `).join('');
+
+      els.outputView.innerHTML = `
+        <h3 class="report-title">${escapeHtml(title)}</h3>
+        <p class="report-subtitle">${escapeHtml(subtitle)}</p>
+        ${summaryHtml}
+        ${sectionHtml}
+      `;
+    }
+
+    function renderPemasok(rows) {
+      renderOutput(
+        'Daftar Pemasok',
+        `Total pemasok: ${fmtInt(rows.length)}`,
+        [{
+          title: 'Master Pemasok',
+          headers: ['Kode', 'Nama', 'Platform', 'Telepon', 'Email', 'Alamat'],
+          rows: rows.map((r) => [r.kode || '-', r.nama || '-', r.platform || '-', r.telepon || '-', r.email || '-', r.alamat || '-']),
+        }]
+      );
+    }
+
+    function renderProduk(rows) {
+      renderOutput(
+        'Daftar Barang',
+        `Total barang: ${fmtInt(rows.length)}`,
+        [{
+          title: 'Master Barang',
+          headers: ['Kode', 'Nama', 'Gambar', 'Satuan', 'Stok', 'Harga Beli', 'Harga Jual', 'Aksi'],
+          rows: rows.map((r) => [
+            r.kode || '-',
+            r.nama || '-',
+            r.image_url ? `__IMG__${r.image_url}` : '-',
+            r.satuan || '-',
+            fmtInt(r.stok),
+            fmtNumber(r.harga_beli),
+            fmtNumber(r.harga_jual),
+            `__BTN_DELETE__${r.kode || ''}`,
+          ]),
+          numericCols: [4, 5, 6],
+        }]
+      );
+
+      const cells = els.outputView.querySelectorAll('td');
+      cells.forEach((cell) => {
+        const marker = cell.textContent || '';
+        if (marker.startsWith('__IMG__')) {
+          const imageUrl = marker.replace('__IMG__', '').trim();
+          cell.innerHTML = `<a href="${escapeHtml(imageUrl)}" target="_blank" rel="noopener noreferrer">Lihat Gambar</a>`;
+          return;
+        }
+        if (!marker.startsWith('__BTN_DELETE__')) return;
+        const kode = marker.replace('__BTN_DELETE__', '').trim();
+        cell.innerHTML = `<button class="btn-mini danger" data-delete-produk="${escapeHtml(kode)}">Hapus</button>`;
+      });
+    }
+
+    function renderOrder(rows) {
+      renderOutput(
+        'Daftar Order Pembelian',
+        'Histori order pengadaan',
+        [{
+          title: 'Order Pembelian',
+          headers: ['Nomor', 'Tanggal', 'Platform', 'Pemasok', 'Total Bayar', 'Status'],
+          rows: rows.map((r) => [
+            r.nomor || '-',
+            formatDate(r.tanggal),
+            r.platform || '-',
+            r.nama_pemasok || '-',
+            fmtNumber(r.total_bayar),
+            r.status || '-',
+          ]),
+          numericCols: [4],
+        }],
+        [{ label: 'Total Order', value: fmtInt(rows.length) }]
+      );
+    }
+
+    function renderDetailOrder(data) {
+      const items = data.items || [];
+      renderOutput(
+        `Detail Order ${data.nomor || '-'}`,
+        `Tanggal ${formatDate(data.tanggal)} • ${data.platform || '-'} • ${data.status || '-'}`,
+        [
+          {
+            title: 'Ringkasan Order',
+            headers: ['Pemasok', 'Metode Bayar', 'Ongkir', 'Diskon', 'Total Bayar'],
+            rows: [[
+              data.nama_pemasok || '-',
+              data.metode_bayar || '-',
+              fmtNumber(data.ongkos_kirim),
+              fmtNumber(data.diskon),
+              fmtNumber(data.total_bayar),
+            ]],
+            numericCols: [2, 3, 4],
+          },
+          {
+            title: 'Item Order',
+            headers: ['Kode', 'Nama', 'Satuan', 'Qty', 'Harga', 'Subtotal'],
+            rows: items.map((i) => [
+              i.kode_produk || '-',
+              i.nama_produk || '-',
+              i.satuan || '-',
+              fmtInt(i.qty),
+              fmtNumber(i.harga_satuan),
+              fmtNumber(i.subtotal),
+            ]),
+            numericCols: [3, 4, 5],
+          },
+        ],
+        [{ label: 'Jumlah Item', value: fmtInt(items.length) }]
+      );
+    }
+
+    function renderRekapPembelian(data) {
+      renderOutput(
+        'Rekap Pembelian',
+        `Ringkasan platform, produk, pemasok (${periodeLabel(data.periode)})`,
+        [
+          {
+            title: 'Per Platform',
+            headers: ['Platform', 'Jumlah Order', 'Total Bayar'],
+            rows: (data.per_platform || []).map((r) => [r.platform || '-', fmtInt(r.jumlah_order), fmtNumber(r.total_bayar)]),
+            numericCols: [1, 2],
+          },
+          {
+            title: 'Per Produk',
+            headers: ['Kode', 'Nama', 'Qty', 'Total Nilai'],
+            rows: (data.per_produk || []).map((r) => [r.kode || '-', r.nama || '-', fmtInt(r.total_qty), fmtNumber(r.total_nilai)]),
+            numericCols: [2, 3],
+          },
+          {
+            title: 'Per Pemasok',
+            headers: ['Pemasok', 'Platform', 'Jumlah Order', 'Total'],
+            rows: (data.per_pemasok || []).map((r) => [r.pemasok || '-', r.platform || '-', fmtInt(r.jumlah_order), fmtNumber(r.total)]),
+            numericCols: [2, 3],
+          },
+        ]
+      );
+    }
+
+    async function api(path, method = 'GET', body) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const r = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+      const data = await r.json();
+      if (!data.ok) throw new Error(data.error || 'Request gagal');
+      return data.data;
+    }
+
+    async function guardRole() {
+      if (!token) return false;
+      try {
+        const me = await api('/api/auth/me');
+        return me.role === 'cashier' || me.role === 'admin';
+      } catch {
+        return false;
+      }
+    }
+
+    async function loadMetaAndProducts() {
+      const meta = await api('/api/meta');
+      const products = await api('/api/produk');
+      els.platform.innerHTML = '';
+      els.supPlatform.innerHTML = '';
+      (meta.platform_pembelian || []).forEach((m) => {
+        const p1 = document.createElement('option');
+        p1.value = m;
+        p1.textContent = m;
+        els.platform.appendChild(p1);
+
+        const p2 = document.createElement('option');
+        p2.value = m;
+        p2.textContent = m;
+        els.supPlatform.appendChild(p2);
+      });
+
+      els.metode.innerHTML = '';
+      (meta.metode_bayar_pembelian || []).forEach((m) => {
+        const op = document.createElement('option');
+        op.value = m;
+        op.textContent = m;
+        els.metode.appendChild(op);
+      });
+
+      els.produk.innerHTML = '';
+      products.forEach((p) => {
+        const op = document.createElement('option');
+        op.value = JSON.stringify({ kode: p.kode, harga: p.harga_beli });
+        op.textContent = `${p.kode} - ${p.nama}`;
+        els.produk.appendChild(op);
+      });
+
+      if (els.produk.value) {
+        try {
+          const p = JSON.parse(els.produk.value);
+          els.harga.value = Number(p.harga || 0);
+        } catch {
+          els.harga.value = 0;
+        }
+      }
+    }
+
+    els.produk.addEventListener('change', () => {
+      try {
+        const p = JSON.parse(els.produk.value || '{}');
+        els.harga.value = Number(p.harga || 0);
+      } catch {
+        els.harga.value = 0;
+      }
+    });
+
+    els.btnTambahPemasok.addEventListener('click', async () => {
+      try {
+        const payload = {
+          kode: els.supKode.value.trim(),
+          nama: els.supNama.value.trim(),
+          platform: els.supPlatform.value || 'Manual',
+          telepon: els.supTelp.value.trim(),
+          email: els.supEmail.value.trim(),
+          alamat: els.supAlamat.value.trim(),
+        };
+        if (!payload.kode || !payload.nama) throw new Error('Kode dan nama pemasok wajib diisi');
+        const r = await api('/api/pembelian/pemasok', 'POST', payload);
+        setStatus(`Pemasok ${r.kode} ditambahkan`);
+        await loadMetaAndProducts();
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnTambahBarang.addEventListener('click', async () => {
+      try {
+        const payload = {
+          kode: els.brgKode.value.trim(),
+          nama: els.brgNama.value.trim(),
+          satuan: els.brgSatuan.value.trim() || 'pcs',
+          image_url: String(els.brgImage.value || '').trim(),
+          harga_beli: Number(els.brgHargaBeli.value || 0),
+          harga_jual: Number(els.brgHargaJual.value || 0),
+          stok: Number(els.brgStok.value || 0),
+        };
+        if (!payload.kode || !payload.nama) throw new Error('Kode dan nama barang wajib diisi');
+        const r = await api('/api/produk', 'POST', payload);
+        setStatus(`Barang ${r.kode} ditambahkan`);
+        await loadMetaAndProducts();
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnAddDraft.addEventListener('click', () => {
+      try {
+        const selected = els.produk.value;
+        if (!selected) throw new Error('Pilih produk dulu');
+        const p = JSON.parse(selected);
+        const qty = Number(els.qty.value || 0);
+        if (qty <= 0) throw new Error('Qty harus > 0');
+        draftItems.push({
+          kode_produk: p.kode,
+          qty,
+          harga_satuan: Number(els.harga.value || 0),
+        });
+        drawDraft();
+        renderCheckoutSummary();
+        focusAndSelect(els.qty);
+        setStatus('Item ditambahkan ke draft');
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.draftView.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      const index = Number(target.getAttribute('data-remove-index'));
+      if (Number.isNaN(index)) return;
+      draftItems.splice(index, 1);
+      drawDraft();
+      renderCheckoutSummary();
+      setStatus('Item draft dihapus.');
+    });
+
+    els.draftView.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) return;
+
+      const index = Number(target.getAttribute('data-edit-index'));
+      const field = String(target.getAttribute('data-edit-field') || '');
+      if (Number.isNaN(index) || !draftItems[index]) return;
+
+      let value = Number(target.value || 0);
+      if (field === 'qty') {
+        value = Math.max(1, Math.round(value));
+      } else if (field === 'harga_satuan') {
+        value = Math.max(0, value);
+      } else {
+        return;
+      }
+
+      draftItems[index][field] = value;
+      drawDraft();
+      renderCheckoutSummary();
+      setStatus('Draft diperbarui.');
+    });
+
+    els.draftView.addEventListener('keydown', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) return;
+
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        target.dispatchEvent(new Event('change', { bubbles: true }));
+        focusNextDraftInput(target);
+        return;
+      }
+
+      if (event.key === 'Delete' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        const index = Number(target.getAttribute('data-edit-index'));
+        if (Number.isNaN(index) || !draftItems[index]) return;
+        draftItems.splice(index, 1);
+        drawDraft();
+        renderCheckoutSummary();
+        setStatus('Item draft dihapus (shortcut).');
+      }
+    });
+
+    ['input', 'change'].forEach((eventName) => {
+      els.ongkir.addEventListener(eventName, renderCheckoutSummary);
+      els.diskon.addEventListener(eventName, renderCheckoutSummary);
+    });
+
+    els.outputView.addEventListener('click', async (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const kode = String(target.getAttribute('data-delete-produk') || '').trim();
+      if (!kode) return;
+
+      const confirmed = window.confirm(`Hapus barang ${kode}?`);
+      if (!confirmed) return;
+
+      try {
+        await api(`/api/produk/${encodeURIComponent(kode)}`, 'DELETE');
+        setStatus(`Barang ${kode} dihapus.`);
+        await loadMetaAndProducts();
+        renderProduk(await api('/api/produk'));
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnBuatOrder.addEventListener('click', async () => {
+      try {
+        if (!draftItems.length) throw new Error('Draft kosong');
+        const payload = {
+          nomor: els.noOrder.value.trim(),
+          tanggal: els.tglOrder.value || today(),
+          platform: els.platform.value || 'Manual',
+          nomor_platform: '',
+          kode_pemasok: els.kodePemasok.value.trim() || null,
+          metode_bayar: els.metode.value || 'Transfer',
+          ongkos_kirim: Number(els.ongkir.value || 0),
+          diskon: Number(els.diskon.value || 0),
+          detail: draftItems,
+        };
+        if (!payload.nomor) throw new Error('Nomor order wajib diisi');
+        const r = await api('/api/pembelian/orders', 'POST', payload);
+        els.postNo.value = r.nomor;
+        setStatus(`Order ${r.nomor} dibuat`);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnPostOrder.addEventListener('click', async () => {
+      try {
+        const nomor = els.postNo.value.trim() || els.noOrder.value.trim();
+        if (!nomor) throw new Error('Nomor order post wajib diisi');
+        await api(`/api/pembelian/orders/${encodeURIComponent(nomor)}/post`, 'POST', {});
+        setStatus(`Order ${nomor} diposting`);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnDetailOrder.addEventListener('click', async () => {
+      try {
+        const nomor = els.postNo.value.trim() || els.noOrder.value.trim();
+        if (!nomor) throw new Error('Nomor order detail wajib diisi');
+        const data = await api(`/api/pembelian/orders/${encodeURIComponent(nomor)}`);
+        renderDetailOrder(data);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnListPemasok.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/pembelian/pemasok');
+        renderPemasok(data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnListProduk.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/produk');
+        renderProduk(data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnListOrder.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/pembelian/orders');
+        renderOrder(data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnRekapBeli.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/rekap-pembelian');
+        renderRekapPembelian(data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    (async function boot() {
+      els.tglOrder.value = today();
+      if (!els.noOrder.value) els.noOrder.value = `PO-${Date.now()}`;
+      drawDraft();
+      renderCheckoutSummary();
+      const allowed = await guardRole();
+      if (!allowed) {
+        showGuard(true);
+        return;
+      }
+      showGuard(false);
+      try {
+        await loadMetaAndProducts();
+        setStatus('Pembelian siap digunakan');
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    })();
+  </script>
+</body>
+</html>

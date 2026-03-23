@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - SAGARA</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --ink: #111827;
+      --line: #d1d5db;
+      --accent: #0f766e;
+      --accent-2: #1d4ed8;
+      --error: #b91c1c;
+      --ok: #166534;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 6% 8%, #dbeafe 0, transparent 34%),
+        radial-gradient(circle at 94% 92%, #dcfce7 0, transparent 30%),
+        var(--bg);
+    }
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, .12);
+    }
+    h1 { margin: 0 0 6px; font-size: 24px; }
+    p { margin: 0 0 14px; font-size: 14px; color: #4b5563; }
+    label { display: block; font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+    input, button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      padding: 10px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    input { background: #fff; }
+    button {
+      border: 0;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.05); }
+    .secondary {
+      background: #fff;
+      color: #1f2937;
+      border: 1px solid #cbd5e1;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .secondary.primary-link {
+      color: #1d4ed8;
+      border-color: #93c5fd;
+      background: #eff6ff;
+    }
+    .status { min-height: 20px; margin-bottom: 10px; font-size: 13px; font-weight: 700; }
+    .ok { color: var(--ok); }
+    .err { color: var(--error); }
+    .hint {
+      font-size: 12px;
+      color: #4b5563;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Login SAGARA</h1>
+    <p>Masuk dengan akun sesuai role agar akses modul otomatis menyesuaikan.</p>
+
+    <div class="hint" id="hintBox">
+      Pembeli bisa login akun terdaftar atau tamu tanpa password. Kasir/Admin wajib username + password.
+    </div>
+
+    <label for="username">Username</label>
+    <input id="username" autocomplete="username" placeholder="username pembeli/kasir/admin">
+
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password" placeholder="kosongkan untuk tamu pembeli">
+
+    <div id="status" class="status"></div>
+
+    <button id="btnLogin">Login</button>
+    <button id="btnGuest" class="secondary hidden" type="button">Masuk Sebagai Tamu Pembeli</button>
+    <a id="linkRegister" class="secondary primary-link" href="/register-pembeli.html">Register Akun Pembeli</a>
+    <a class="secondary" href="/">Kembali ke Dashboard</a>
+  </main>
+
+  <script>
+    const query = new URLSearchParams(window.location.search);
+    const nextPath = String(query.get('next') || '').trim();
+    const rolePrefill = String(query.get('role') || '').trim().toLowerCase();
+
+    const els = {
+      username: document.getElementById('username'),
+      password: document.getElementById('password'),
+      status: document.getElementById('status'),
+      hintBox: document.getElementById('hintBox'),
+      btnLogin: document.getElementById('btnLogin'),
+      btnGuest: document.getElementById('btnGuest'),
+      linkRegister: document.getElementById('linkRegister'),
+    };
+
+    function setStatus(msg, ok = true) {
+      els.status.textContent = msg;
+      els.status.className = `status ${ok ? 'ok' : 'err'}`;
+    }
+
+    function persistSession(session) {
+      localStorage.setItem('sagara_auth_token', session.token);
+      localStorage.setItem('sagara_auth_role', session.role);
+      localStorage.setItem('sagara_auth_user', session.username);
+    }
+
+    function resolveLanding(role) {
+      if (nextPath.startsWith('/')) return nextPath;
+      if (role === 'cashier') return '/kasir.html';
+      if (role === 'admin') return '/akuntansi.html';
+      return '/?focus=create';
+    }
+
+    function applyRoleHint() {
+      els.btnGuest.classList.remove('hidden');
+      els.linkRegister.classList.remove('hidden');
+      els.username.placeholder = 'username pembeli/kasir/admin';
+      els.password.placeholder = 'isi password akun, kosongkan untuk tamu pembeli';
+      els.hintBox.textContent = 'Role terdeteksi otomatis dari akun. Kasir default: kasir/kasir123, admin default: admin/admin123.';
+
+      if (rolePrefill === 'cashier') {
+        if (!els.username.value) els.username.value = 'kasir';
+        if (!els.password.value) els.password.value = 'kasir123';
+      } else if (rolePrefill === 'admin') {
+        if (!els.username.value) els.username.value = 'admin';
+        if (!els.password.value) els.password.value = 'admin123';
+      } else if (rolePrefill === 'buyer') {
+        if (!els.username.value) els.username.value = 'pembeli';
+      }
+    }
+
+    function guessLegacyRole(username) {
+      const u = String(username || '').trim().toLowerCase();
+      if (rolePrefill === 'admin' || u === 'admin') return 'admin';
+      if (rolePrefill === 'cashier' || u === 'kasir' || u === 'cashier') return 'cashier';
+      return 'buyer';
+    }
+
+    async function requestJson(path, payload) {
+      const response = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const raw = await response.text();
+      let data = null;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        if (raw.includes('Cannot POST') || raw.includes('<!DOCTYPE html>')) {
+          throw new Error('Backend belum sinkron. Restart server dengan npm run web lalu coba lagi.');
+        }
+        throw new Error('Respon backend tidak valid. Silakan restart server dan coba lagi.');
+      }
+
+      if (!data.ok) throw new Error(data.error || 'Login gagal.');
+      return data;
+    }
+
+    async function doLogin(passwordOverride = null, forcedRole = 'auto') {
+      const username = String(els.username.value || '').trim();
+      const password = passwordOverride === null ? String(els.password.value || '') : String(passwordOverride || '');
+
+      const payload = await requestJson('/api/auth/login', {
+        role: forcedRole,
+        username,
+        password,
+      });
+
+      persistSession(payload.data);
+      return payload.data;
+    }
+
+    async function doLoginWithCompatibility(passwordOverride = null) {
+      try {
+        return await doLogin(passwordOverride, 'auto');
+      } catch (error) {
+        const message = String(error && error.message ? error.message : error);
+        if (!message.includes('Role login tidak dikenal')) {
+          throw error;
+        }
+        const legacyRole = guessLegacyRole(els.username.value);
+        return doLogin(passwordOverride, legacyRole);
+      }
+    }
+
+    async function loginAkun() {
+      els.btnLogin.disabled = true;
+      try {
+        const session = await doLoginWithCompatibility(null);
+        setStatus(`Login ${session.role} berhasil. Mengarahkan...`);
+        window.setTimeout(() => {
+          window.location.href = resolveLanding(session.role);
+        }, 550);
+      } catch (error) {
+        setStatus(error.message || 'Terjadi kesalahan login.', false);
+      } finally {
+        els.btnLogin.disabled = false;
+      }
+    }
+
+    async function loginGuestBuyer() {
+      els.btnGuest.disabled = true;
+      try {
+        const guestName = String(els.username.value || '').trim() || 'pembeli';
+        els.username.value = guestName;
+        const session = await doLoginWithCompatibility('');
+        setStatus('Login tamu pembeli berhasil. Mengarahkan...');
+        window.setTimeout(() => {
+          window.location.href = resolveLanding(session.role);
+        }, 550);
+      } catch (error) {
+        setStatus(error.message || 'Terjadi kesalahan login tamu.', false);
+      } finally {
+        els.btnGuest.disabled = false;
+      }
+    }
+
+    applyRoleHint();
+    els.btnLogin.addEventListener('click', loginAkun);
+    els.btnGuest.addEventListener('click', loginGuestBuyer);
+    [els.username, els.password].forEach((input) => {
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') loginAkun();
+      });
+    });
+  </script>
+</body>
+</html>

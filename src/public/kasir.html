@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kasir POS - SAGARA</title>
+  <style>
+    :root {
+      --bg: #f3f7fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --line: #d7dee8;
+      --accent: #0f766e;
+      --accent2: #1d4ed8;
+      --warn: #b91c1c;
+      --ok: #166534;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, #e0f2fe 0, transparent 28%),
+        radial-gradient(circle at 100% 100%, #dcfce7 0, transparent 30%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1180px; margin: 20px auto; padding: 0 14px 24px; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #0f172a, #1f2937);
+      color: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 12px 26px rgba(2, 6, 23, .22);
+    }
+    .topbar h1 { margin: 0; font-size: 20px; }
+    .topbar p { margin: 4px 0 0; font-size: 12px; opacity: .85; }
+    .top-actions { display: flex; gap: 8px; }
+    .btn, .link-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn { background: var(--accent); color: #fff; width: 100%; }
+    .btn.alt { background: var(--accent2); }
+    .btn.ghost { background: #fff; border: 1px solid #cbd5e1; color: #1f2937; }
+    .link-btn { background: #fff; color: #1f2937; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .stat .label { margin: 0; font-size: 11px; color: #6b7280; text-transform: uppercase; }
+    .stat .value { margin: 6px 0 0; font-size: 22px; font-weight: 700; }
+
+    .grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 12px; margin-top: 12px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .card h2 { margin: 0 0 10px; font-size: 16px; }
+    .block {
+      border: 1px dashed #d1d5db;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fbfdff;
+    }
+    .block h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; color: #374151; }
+
+    label { font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      padding: 9px 10px;
+      font-size: 14px;
+      background: #fff;
+    }
+    textarea { min-height: 120px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+
+    .status { margin-top: 8px; min-height: 20px; font-size: 13px; font-weight: 700; }
+    .ok { color: var(--ok); }
+    .err { color: var(--warn); }
+
+    .table-wrap { max-height: 420px; overflow: auto; border: 1px solid #e5e7eb; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border-bottom: 1px dashed #d1d5db; padding: 8px 6px; text-align: left; }
+    th { font-size: 11px; color: #6b7280; text-transform: uppercase; background: #f8fafc; position: sticky; top: 0; }
+
+    .guard {
+      margin-top: 14px;
+      background: #fff;
+      border: 1px solid #fecaca;
+      color: #7f1d1d;
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+    }
+
+    @media (max-width: 920px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .row, .row3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div>
+        <h1>Kasir POS</h1>
+        <p>Halaman khusus role kasir untuk transaksi dan pengelolaan barang.</p>
+      </div>
+      <div class="top-actions">
+        <a class="link-btn" href="/">Dashboard Utama</a>
+        <button class="link-btn" id="btnLogout">Logout</button>
+      </div>
+    </header>
+
+    <section class="guard" id="guardBox">
+      Akses hanya untuk role kasir/admin. Role login terdeteksi otomatis sesuai akun.
+      Silakan login lewat
+      <a href="/login.html?role=cashier&next=/kasir.html">halaman login</a>.
+    </section>
+
+    <section id="appArea">
+      <div class="stats">
+        <div class="stat"><p class="label">Total Order</p><p class="value" id="stOrder">0</p></div>
+        <div class="stat"><p class="label">Delivered</p><p class="value" id="stDelivered">0</p></div>
+        <div class="stat"><p class="label">Omzet</p><p class="value" id="stRevenue">Rp 0</p></div>
+        <div class="stat"><p class="label">Draft Item</p><p class="value" id="stDraft">0</p></div>
+      </div>
+
+      <div class="grid">
+        <section class="card">
+          <div class="block">
+            <h3>Tambah Barang</h3>
+            <div class="row">
+              <div><label>Kode</label><input id="kode" placeholder="PRD-KSR-001"></div>
+              <div><label>Nama</label><input id="nama" placeholder="Nama Barang"></div>
+            </div>
+            <div class="row3">
+              <div><label>Harga Jual</label><input id="hj" type="number" value="0"></div>
+              <div><label>Harga Beli</label><input id="hb" type="number" value="0"></div>
+              <div><label>Stok</label><input id="stok" type="number" value="0"></div>
+            </div>
+            <button class="btn alt" id="btnAddProduct">Tambah Barang</button>
+          </div>
+
+          <div class="block">
+            <h3>Penjualan Langsung</h3>
+            <div class="row">
+              <div><label>Nomor</label><input id="nomor" placeholder="KSR-..."></div>
+              <div><label>Pembeli</label><input id="pembeli" value="Pelanggan Toko"></div>
+            </div>
+            <div class="row">
+              <div><label>Metode Bayar</label><select id="metode"></select></div>
+              <div><label>Produk</label><select id="produk"></select></div>
+            </div>
+            <div class="row3">
+              <div><label>Qty</label><input id="qty" type="number" value="1"></div>
+              <div><label>Diskon %</label><input id="diskon" type="number" value="0"></div>
+              <div><label>PPN %</label><input id="ppn" type="number" value="11"></div>
+            </div>
+            <div class="actions">
+              <button class="btn ghost" id="btnAddDraft">Tambah Draft</button>
+              <button class="btn" id="btnCheckout">Proses Penjualan</button>
+            </div>
+            <textarea id="draft" readonly style="margin-top:8px;"></textarea>
+          </div>
+
+          <div id="status" class="status"></div>
+        </section>
+
+        <section class="card">
+          <h2>Daftar Order Website</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Nomor</th><th>Status</th><th>Total</th><th>Penerima</th></tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const draftItems = [];
+    let token = localStorage.getItem('sagara_auth_token') || '';
+    let role = localStorage.getItem('sagara_auth_role') || '';
+
+    const els = {
+      appArea: document.getElementById('appArea'),
+      guardBox: document.getElementById('guardBox'),
+      btnLogout: document.getElementById('btnLogout'),
+      kode: document.getElementById('kode'),
+      nama: document.getElementById('nama'),
+      hj: document.getElementById('hj'),
+      hb: document.getElementById('hb'),
+      stok: document.getElementById('stok'),
+      btnAddProduct: document.getElementById('btnAddProduct'),
+      nomor: document.getElementById('nomor'),
+      pembeli: document.getElementById('pembeli'),
+      metode: document.getElementById('metode'),
+      produk: document.getElementById('produk'),
+      qty: document.getElementById('qty'),
+      diskon: document.getElementById('diskon'),
+      ppn: document.getElementById('ppn'),
+      btnAddDraft: document.getElementById('btnAddDraft'),
+      btnCheckout: document.getElementById('btnCheckout'),
+      draft: document.getElementById('draft'),
+      status: document.getElementById('status'),
+      tbody: document.getElementById('tbody'),
+      stOrder: document.getElementById('stOrder'),
+      stDelivered: document.getElementById('stDelivered'),
+      stRevenue: document.getElementById('stRevenue'),
+      stDraft: document.getElementById('stDraft'),
+    };
+
+    function setStatus(msg, ok = true) {
+      els.status.textContent = msg;
+      els.status.className = `status ${ok ? 'ok' : 'err'}`;
+    }
+
+    function today() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function setDefaults() {
+      if (!els.nomor.value) {
+        els.nomor.value = `KSR-${Date.now()}`;
+      }
+    }
+
+    function drawDraft() {
+      els.draft.value = JSON.stringify(draftItems, null, 2);
+      els.stDraft.textContent = String(draftItems.length);
+    }
+
+    async function api(path, method = 'GET', body) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(path, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const payload = await response.json();
+      if (!payload.ok) throw new Error(payload.error || 'Request gagal');
+      return payload.data;
+    }
+
+    async function guardRole() {
+      if (!token) return false;
+      try {
+        const me = await api('/api/auth/me');
+        role = me.role;
+        return role === 'cashier' || role === 'admin';
+      } catch {
+        return false;
+      }
+    }
+
+    function showGuard(show) {
+      els.guardBox.style.display = show ? 'block' : 'none';
+      els.appArea.style.display = show ? 'none' : 'block';
+    }
+
+    async function loadMetaAndProducts() {
+      const meta = await api('/api/meta');
+      const products = await api('/api/produk');
+
+      els.metode.innerHTML = '';
+      (meta.metode_bayar || []).forEach((m) => {
+        const op = document.createElement('option');
+        op.value = m;
+        op.textContent = m;
+        els.metode.appendChild(op);
+      });
+      const hutangOption = document.createElement('option');
+      hutangOption.value = 'Hutang';
+      hutangOption.textContent = 'Hutang';
+      els.metode.appendChild(hutangOption);
+
+      els.produk.innerHTML = '';
+      products.forEach((p) => {
+        const op = document.createElement('option');
+        op.value = JSON.stringify({ kode: p.kode, harga: p.harga_jual });
+        op.textContent = `${p.kode} - ${p.nama} (stok ${p.stok})`;
+        els.produk.appendChild(op);
+      });
+    }
+
+    async function loadOrders() {
+      const orders = await api('/api/orders');
+      els.tbody.innerHTML = '';
+      const delivered = orders.filter((o) => String(o.status || '').toUpperCase() === 'DELIVERED');
+      const omzet = delivered.reduce((s, o) => s + Number(o.total_bayar || 0), 0);
+      els.stOrder.textContent = String(orders.length);
+      els.stDelivered.textContent = String(delivered.length);
+      els.stRevenue.textContent = `Rp ${Number(omzet).toLocaleString('id-ID')}`;
+
+      orders.slice().reverse().forEach((o) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${o.nomor}</td><td>${o.status}</td><td>${Number(o.total_bayar).toLocaleString('id-ID')}</td><td>${o.nama_penerima}</td>`;
+        els.tbody.appendChild(tr);
+      });
+    }
+
+    els.btnAddProduct.addEventListener('click', async () => {
+      try {
+        const payload = {
+          kode: els.kode.value.trim(),
+          nama: els.nama.value.trim(),
+          satuan: 'pcs',
+          harga_jual: Number(els.hj.value || 0),
+          harga_beli: Number(els.hb.value || 0),
+          stok: Number(els.stok.value || 0),
+        };
+        if (!payload.kode || !payload.nama) throw new Error('Kode dan nama wajib diisi');
+        const result = await api('/api/produk', 'POST', payload);
+        setStatus(`Produk ${result.kode} berhasil ditambahkan`);
+        await loadMetaAndProducts();
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnAddDraft.addEventListener('click', () => {
+      try {
+        const selected = els.produk.value;
+        if (!selected) throw new Error('Pilih produk dulu');
+        const p = JSON.parse(selected);
+        const qty = Number(els.qty.value || 0);
+        if (qty <= 0) throw new Error('Qty harus > 0');
+        draftItems.push({
+          kode_produk: p.kode,
+          qty,
+          harga_satuan: Number(p.harga || 0),
+          diskon_persen: Number(els.diskon.value || 0),
+        });
+        drawDraft();
+        setStatus('Item ditambahkan ke draft');
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnCheckout.addEventListener('click', async () => {
+      try {
+        if (!draftItems.length) throw new Error('Draft masih kosong');
+        const payload = {
+          nomor: els.nomor.value.trim(),
+          tanggal: today(),
+          nama_penerima: els.pembeli.value.trim() || 'Pelanggan Toko',
+          metode_bayar: els.metode.value,
+          ppn_persen: Number(els.ppn.value || 11),
+          detail: draftItems,
+        };
+        const result = await api('/api/kasir/sales', 'POST', payload);
+        setStatus(`Transaksi ${result.nomor} selesai. Total ${Number(result.total_bayar).toLocaleString('id-ID')}`);
+        draftItems.length = 0;
+        drawDraft();
+        els.nomor.value = `KSR-${Date.now()}`;
+        await loadOrders();
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnLogout.addEventListener('click', async () => {
+      try {
+        await api('/api/auth/logout', 'POST', {});
+      } catch {
+        // ignore logout error
+      }
+      localStorage.removeItem('sagara_auth_token');
+      localStorage.removeItem('sagara_auth_role');
+      localStorage.removeItem('sagara_auth_user');
+      window.location.href = '/login.html?role=cashier';
+    });
+
+    (async function boot() {
+      setDefaults();
+      drawDraft();
+      const allowed = await guardRole();
+      if (!allowed) {
+        showGuard(true);
+        return;
+      }
+      showGuard(false);
+      try {
+        await loadMetaAndProducts();
+        await loadOrders();
+        setStatus('Kasir siap digunakan');
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    })();
+  </script>
+</body>
+</html>

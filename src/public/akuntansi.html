@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Akuntansi - SAGARA</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --line: #d6dbe4;
+      --accent: #1d4ed8;
+      --ok: #166534;
+      --err: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, #dbeafe 0, transparent 28%),
+        radial-gradient(circle at 100% 100%, #e0e7ff 0, transparent 30%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1140px; margin: 20px auto; padding: 0 14px 24px; }
+    .top {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, .2);
+    }
+    .top h1 { margin: 0; font-size: 20px; }
+    .top p { margin: 4px 0 0; font-size: 12px; opacity: .85; }
+    .actions-top { display: flex; gap: 8px; }
+    .btn, .link-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn { background: var(--accent); color: #fff; }
+    .btn.ghost { background: #fff; color: #111827; border: 1px solid #cbd5e1; }
+    .link-btn { background: #fff; color: #111827; }
+
+    .guard {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid #fecaca;
+      color: #7f1d1d;
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+    }
+
+    .grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 12px; margin-top: 12px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .card h2 { margin: 0 0 10px; font-size: 16px; }
+
+    .block {
+      border: 1px dashed #d1d5db;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fcfdff;
+    }
+    .block h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; color: #374151; }
+
+    label { font-size: 12px; font-weight: 700; display: block; margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 9px 10px;
+      font-size: 14px;
+      background: #fff;
+    }
+    textarea { min-height: 120px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .perm-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 10px;
+      margin-bottom: 8px;
+    }
+    .perm-item {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 12px;
+      color: #1f2937;
+      font-weight: 600;
+    }
+    .perm-item input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      padding: 0;
+    }
+    .acc-list-wrap {
+      margin-top: 8px;
+      max-height: 220px;
+      overflow: auto;
+      border: 1px solid #dbe1ea;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .acc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .acc-table th,
+    .acc-table td {
+      border-bottom: 1px solid #edf2f7;
+      padding: 7px 6px;
+      text-align: left;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .acc-table th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      color: #334155;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .acc-table .active-row {
+      background: #eff6ff;
+    }
+    .acc-badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      background: #eff6ff;
+    }
+    .acc-badge.off {
+      border-color: #fecaca;
+      color: #991b1b;
+      background: #fef2f2;
+    }
+    .btn-mini {
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #1f2937;
+      border-radius: 6px;
+      padding: 4px 7px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .acc-tools {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .perm-badges {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .perm-pill {
+      display: inline-block;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1e3a8a;
+      border-radius: 999px;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .status { margin-top: 8px; min-height: 20px; font-size: 13px; font-weight: 700; }
+    .ok { color: var(--ok); }
+    .err { color: var(--err); }
+
+    @media (max-width: 920px) {
+      .grid { grid-template-columns: 1fr; }
+      .row, .row3 { grid-template-columns: 1fr; }
+      .actions { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <h1>Akuntansi & Laporan</h1>
+        <p>Halaman khusus role akuntansi/admin untuk jurnal dan laporan keuangan.</p>
+      </div>
+      <div class="actions-top">
+        <a class="link-btn" href="/">Dashboard Utama</a>
+        <button class="link-btn" id="btnLogout">Logout</button>
+      </div>
+    </header>
+
+    <section class="guard" id="guardBox">
+      Akses halaman ini hanya untuk role admin. Role login terdeteksi otomatis sesuai akun.
+      Silakan login via
+      <a href="/login.html?role=admin&next=/akuntansi.html">halaman login</a>.
+    </section>
+
+    <section id="appArea">
+      <div class="grid">
+        <section class="card">
+          <div class="block">
+            <h3>Tambah Akun</h3>
+            <div class="row">
+              <div><label>Kode Akun</label><input id="kodeAkun" placeholder="6-1000"></div>
+              <div><label>Nama Akun</label><input id="namaAkun" placeholder="Biaya Operasional"></div>
+            </div>
+            <div class="row">
+              <div>
+                <label>Jenis</label>
+                <select id="jenisAkun">
+                  <option>Aset</option><option>Kewajiban</option><option>Ekuitas</option><option>Pendapatan</option><option>Beban</option>
+                </select>
+              </div>
+              <div>
+                <label>Saldo Normal</label>
+                <select id="saldoNormal">
+                  <option>Debit</option><option>Kredit</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn" id="btnTambahAkun">Simpan Akun</button>
+          </div>
+
+          <div class="block">
+            <h3>Catat Jurnal</h3>
+            <div class="row3">
+              <div><label>Tanggal</label><input id="jurnalTanggal" type="date"></div>
+              <div><label>No Bukti</label><input id="jurnalNo" placeholder="JU-001"></div>
+              <div><label>Keterangan</label><input id="jurnalKet" placeholder="Jurnal umum"></div>
+            </div>
+            <div class="row">
+              <div><label>Kode Akun</label><input id="jurnalAkun" placeholder="1-1000"></div>
+              <div><label>Debit</label><input id="jurnalDebit" type="number" value="0"></div>
+            </div>
+            <div class="row">
+              <div><label>Kode Akun Lawan</label><input id="jurnalAkun2" placeholder="4-1000"></div>
+              <div><label>Kredit</label><input id="jurnalKredit" type="number" value="0"></div>
+            </div>
+            <button class="btn" id="btnCatatJurnal">Catat Jurnal</button>
+          </div>
+
+          <div class="block">
+            <h3>Buku Besar</h3>
+            <div class="row">
+              <div><label>Kode Akun</label><input id="bbKode" value="1-1000"></div>
+              <div style="display:flex; align-items:flex-end;"><button class="btn ghost" id="btnBukuBesar">Muat Buku Besar</button></div>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>Manajemen Akun Akses</h3>
+            <div class="row">
+              <div><label>Username</label><input id="accUsername" placeholder="contoh: staff1"></div>
+              <div><label>Nama Lengkap</label><input id="accNama" placeholder="Nama akun"></div>
+            </div>
+            <div class="row3">
+              <div>
+                <label>Role</label>
+                <select id="accRole">
+                  <option value="buyer">buyer</option>
+                  <option value="cashier">cashier</option>
+                  <option value="admin">admin</option>
+                </select>
+              </div>
+              <div><label>Password (opsional saat update)</label><input id="accPassword" type="password" placeholder="Minimal 6 karakter"></div>
+              <div style="display:flex; align-items:flex-end; gap:8px;">
+                <label class="perm-item" style="margin:0;"><input id="accActive" type="checkbox" checked> Akun Aktif</label>
+              </div>
+            </div>
+            <div class="perm-grid">
+              <label class="perm-item"><input id="permCreateOrder" type="checkbox" checked> Izin Buat Order</label>
+              <label class="perm-item"><input id="permProcessOrder" type="checkbox"> Izin Proses Order</label>
+              <label class="perm-item"><input id="permManageProduk" type="checkbox"> Izin Kelola Produk</label>
+              <label class="perm-item"><input id="permCashierSale" type="checkbox"> Izin Transaksi Kasir</label>
+            </div>
+            <div class="actions" style="grid-template-columns: 1fr 1fr 1fr;">
+              <button class="btn" id="btnAccCreate">Buat Akun</button>
+              <button class="btn ghost" id="btnAccUpdate">Update Akun</button>
+              <button class="btn ghost" id="btnAccList">Daftar Akun</button>
+            </div>
+            <div class="acc-tools">
+              <input id="accSearch" placeholder="Cari username / role...">
+              <button class="btn ghost" id="btnAccReset" type="button">Reset Form</button>
+            </div>
+            <div id="accListWrap" class="acc-list-wrap"></div>
+          </div>
+
+          <div id="status" class="status"></div>
+        </section>
+
+        <section class="card">
+          <h2>Output Akuntansi/Laporan</h2>
+          <div class="actions">
+            <button class="btn ghost" id="btnAkun">Daftar Akun</button>
+            <button class="btn ghost" id="btnJurnal">Daftar Jurnal</button>
+            <button class="btn ghost" id="btnNeracaSaldo">Neraca Saldo</button>
+            <button class="btn ghost" id="btnLabaRugi">Laba Rugi</button>
+            <button class="btn ghost" id="btnNeraca">Neraca</button>
+            <button class="btn ghost" id="btnRekapWeb">Rekap Web</button>
+          </div>
+          <textarea id="output" readonly style="margin-top:10px; min-height: 420px;"></textarea>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    let token = localStorage.getItem('sagara_auth_token') || '';
+    let role = localStorage.getItem('sagara_auth_role') || '';
+    let managedAccounts = [];
+    let selectedAccountUsername = '';
+
+    const els = {
+      appArea: document.getElementById('appArea'),
+      guardBox: document.getElementById('guardBox'),
+      btnLogout: document.getElementById('btnLogout'),
+      status: document.getElementById('status'),
+      output: document.getElementById('output'),
+      kodeAkun: document.getElementById('kodeAkun'),
+      namaAkun: document.getElementById('namaAkun'),
+      jenisAkun: document.getElementById('jenisAkun'),
+      saldoNormal: document.getElementById('saldoNormal'),
+      btnTambahAkun: document.getElementById('btnTambahAkun'),
+      jurnalTanggal: document.getElementById('jurnalTanggal'),
+      jurnalNo: document.getElementById('jurnalNo'),
+      jurnalKet: document.getElementById('jurnalKet'),
+      jurnalAkun: document.getElementById('jurnalAkun'),
+      jurnalDebit: document.getElementById('jurnalDebit'),
+      jurnalAkun2: document.getElementById('jurnalAkun2'),
+      jurnalKredit: document.getElementById('jurnalKredit'),
+      btnCatatJurnal: document.getElementById('btnCatatJurnal'),
+      bbKode: document.getElementById('bbKode'),
+      btnBukuBesar: document.getElementById('btnBukuBesar'),
+      btnAkun: document.getElementById('btnAkun'),
+      btnJurnal: document.getElementById('btnJurnal'),
+      btnNeracaSaldo: document.getElementById('btnNeracaSaldo'),
+      btnLabaRugi: document.getElementById('btnLabaRugi'),
+      btnNeraca: document.getElementById('btnNeraca'),
+      btnRekapWeb: document.getElementById('btnRekapWeb'),
+      accUsername: document.getElementById('accUsername'),
+      accNama: document.getElementById('accNama'),
+      accRole: document.getElementById('accRole'),
+      accPassword: document.getElementById('accPassword'),
+      accActive: document.getElementById('accActive'),
+      permCreateOrder: document.getElementById('permCreateOrder'),
+      permProcessOrder: document.getElementById('permProcessOrder'),
+      permManageProduk: document.getElementById('permManageProduk'),
+      permCashierSale: document.getElementById('permCashierSale'),
+      btnAccCreate: document.getElementById('btnAccCreate'),
+      btnAccUpdate: document.getElementById('btnAccUpdate'),
+      btnAccList: document.getElementById('btnAccList'),
+      accListWrap: document.getElementById('accListWrap'),
+      accSearch: document.getElementById('accSearch'),
+      btnAccReset: document.getElementById('btnAccReset'),
+    };
+
+    function today() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function setStatus(msg, ok = true) {
+      els.status.textContent = msg;
+      els.status.className = `status ${ok ? 'ok' : 'err'}`;
+    }
+
+    function showGuard(show) {
+      els.guardBox.style.display = show ? 'block' : 'none';
+      els.appArea.style.display = show ? 'none' : 'block';
+    }
+
+    function render(title, data) {
+      els.output.value = `${title}\n${'='.repeat(title.length)}\n\n${JSON.stringify(data, null, 2)}`;
+    }
+
+    function collectPermissionsPayload() {
+      return {
+        can_create_order: Boolean(els.permCreateOrder.checked),
+        can_process_order: Boolean(els.permProcessOrder.checked),
+        can_manage_produk: Boolean(els.permManageProduk.checked),
+        can_cashier_sale: Boolean(els.permCashierSale.checked),
+      };
+    }
+
+    function applyPermissionsToForm(permissions) {
+      const p = permissions && typeof permissions === 'object' ? permissions : {};
+      els.permCreateOrder.checked = Boolean(p.can_create_order);
+      els.permProcessOrder.checked = Boolean(p.can_process_order);
+      els.permManageProduk.checked = Boolean(p.can_manage_produk);
+      els.permCashierSale.checked = Boolean(p.can_cashier_sale);
+    }
+
+    function fillAccountForm(account) {
+      if (!account) return;
+      selectedAccountUsername = String(account.username || '');
+      els.accUsername.value = selectedAccountUsername;
+      els.accNama.value = String(account.nama_lengkap || '');
+      els.accRole.value = String(account.role || 'buyer');
+      els.accActive.checked = Boolean(account.is_active);
+      els.accPassword.value = '';
+      applyPermissionsToForm(account.permissions || {});
+      renderManagedAccountList();
+    }
+
+    function resetAccountForm() {
+      selectedAccountUsername = '';
+      els.accUsername.value = '';
+      els.accNama.value = '';
+      els.accRole.value = 'buyer';
+      els.accActive.checked = true;
+      els.accPassword.value = '';
+      applyRolePermissionDefaults();
+      renderManagedAccountList();
+    }
+
+    function permissionBadges(account) {
+      const permissions = account && account.permissions ? account.permissions : {};
+      const badges = [];
+      if (permissions.can_create_order) badges.push('CREATE');
+      if (permissions.can_process_order) badges.push('PROCESS');
+      if (permissions.can_manage_produk) badges.push('PRODUK');
+      if (permissions.can_cashier_sale) badges.push('KASIR');
+      if (!badges.length) badges.push('NONE');
+      return badges.map((name) => `<span class="perm-pill">${name}</span>`).join('');
+    }
+
+    function renderManagedAccountList() {
+      const rows = Array.isArray(managedAccounts) ? managedAccounts : [];
+      const keyword = String(els.accSearch.value || '').trim().toLowerCase();
+      const filtered = keyword
+        ? rows.filter((account) => {
+            const hay = `${account.username || ''} ${account.role || ''} ${account.nama_lengkap || ''}`.toLowerCase();
+            return hay.includes(keyword);
+          })
+        : rows;
+
+      if (!filtered.length) {
+        els.accListWrap.innerHTML = '<div style="padding:8px; font-size:12px; color:#64748b;">Belum ada akun login yang dibuat admin.</div>';
+        return;
+      }
+
+      const body = filtered.map((account) => {
+        const username = String(account.username || '');
+        const isSelected = username === selectedAccountUsername;
+        const active = Boolean(account.is_active);
+        return `
+          <tr class="${isSelected ? 'active-row' : ''}">
+            <td>${username}</td>
+            <td>${String(account.role || '-')}</td>
+            <td><span class="acc-badge ${active ? '' : 'off'}">${active ? 'Aktif' : 'Nonaktif'}</span></td>
+            <td><div class="perm-badges">${permissionBadges(account)}</div></td>
+            <td><button class="btn-mini" data-acc-select="${username}">Pilih</button></td>
+          </tr>
+        `;
+      }).join('');
+
+      els.accListWrap.innerHTML = `
+        <table class="acc-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Izin</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>${body}</tbody>
+        </table>
+      `;
+    }
+
+    async function loadManagedAccounts() {
+      const data = await api('/api/admin/accounts');
+      managedAccounts = Array.isArray(data) ? data : [];
+      renderManagedAccountList();
+      return managedAccounts;
+    }
+
+    function applyRolePermissionDefaults() {
+      const roleValue = String(els.accRole.value || 'buyer');
+      if (roleValue === 'admin') {
+        els.permCreateOrder.checked = true;
+        els.permProcessOrder.checked = true;
+        els.permManageProduk.checked = true;
+        els.permCashierSale.checked = true;
+        return;
+      }
+      if (roleValue === 'cashier') {
+        els.permCreateOrder.checked = true;
+        els.permProcessOrder.checked = true;
+        els.permManageProduk.checked = true;
+        els.permCashierSale.checked = true;
+        return;
+      }
+      els.permCreateOrder.checked = true;
+      els.permProcessOrder.checked = false;
+      els.permManageProduk.checked = false;
+      els.permCashierSale.checked = false;
+    }
+
+    async function api(path, method = 'GET', body) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(path, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const raw = await response.text();
+      let payload = null;
+      try {
+        payload = JSON.parse(raw);
+      } catch {
+        if (raw.includes('Cannot') || raw.includes('<!DOCTYPE html>')) {
+          throw new Error('Backend belum sinkron. Restart server dengan npm run web lalu coba lagi.');
+        }
+        throw new Error('Respon backend tidak valid. Silakan restart server.');
+      }
+      if (!payload.ok) throw new Error(payload.error || 'Request gagal');
+      return payload.data;
+    }
+
+    async function guardRole() {
+      if (!token) return false;
+      try {
+        const me = await api('/api/auth/me');
+        role = me.role;
+        return role === 'admin';
+      } catch {
+        return false;
+      }
+    }
+
+    els.btnTambahAkun.addEventListener('click', async () => {
+      try {
+        const payload = {
+          kode: els.kodeAkun.value.trim(),
+          nama: els.namaAkun.value.trim(),
+          jenis: els.jenisAkun.value,
+          saldo_normal: els.saldoNormal.value,
+        };
+        if (!payload.kode || !payload.nama) throw new Error('Kode dan nama akun wajib diisi');
+        const result = await api('/api/akuntansi/akun', 'POST', payload);
+        setStatus(`Akun ${result.kode} berhasil ditambahkan`);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnCatatJurnal.addEventListener('click', async () => {
+      try {
+        const payload = {
+          tanggal: els.jurnalTanggal.value || today(),
+          nomor_bukti: els.jurnalNo.value.trim(),
+          keterangan: els.jurnalKet.value.trim(),
+          detail: [
+            { kode_akun: els.jurnalAkun.value.trim(), debit: Number(els.jurnalDebit.value || 0), kredit: 0 },
+            { kode_akun: els.jurnalAkun2.value.trim(), debit: 0, kredit: Number(els.jurnalKredit.value || 0) },
+          ],
+        };
+        if (!payload.nomor_bukti) throw new Error('Nomor bukti wajib diisi');
+        const result = await api('/api/akuntansi/jurnal', 'POST', payload);
+        setStatus(`Jurnal ${result.nomor_bukti} berhasil dicatat`);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnBukuBesar.addEventListener('click', async () => {
+      try {
+        const kode = els.bbKode.value.trim();
+        if (!kode) throw new Error('Kode akun wajib diisi');
+        const data = await api(`/api/akuntansi/buku-besar/${encodeURIComponent(kode)}`);
+        render(`Buku Besar ${kode}`, data);
+        setStatus(`Buku besar ${kode} dimuat`);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnAkun.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/akuntansi/akun');
+        render('Daftar Akun', data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnJurnal.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/akuntansi/jurnal');
+        render('Daftar Jurnal', data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnNeracaSaldo.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/neraca-saldo');
+        render('Neraca Saldo', data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnLabaRugi.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/laba-rugi');
+        render('Laba Rugi', data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnNeraca.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/neraca');
+        render('Neraca', data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnRekapWeb.addEventListener('click', async () => {
+      try {
+        const data = await api('/api/laporan/rekap-penjualan-website');
+        render('Rekap Penjualan Website', data);
+      } catch (error) { setStatus(error.message, false); }
+    });
+
+    els.accRole.addEventListener('change', applyRolePermissionDefaults);
+
+    els.btnAccCreate.addEventListener('click', async () => {
+      try {
+        const payload = {
+          username: els.accUsername.value.trim(),
+          nama_lengkap: els.accNama.value.trim(),
+          role: els.accRole.value,
+          password: els.accPassword.value,
+          is_active: Boolean(els.accActive.checked),
+          permissions: collectPermissionsPayload(),
+        };
+        if (!payload.username || !payload.nama_lengkap || !payload.password) {
+          throw new Error('Username, nama lengkap, dan password wajib diisi untuk membuat akun.');
+        }
+        const data = await api('/api/admin/accounts', 'POST', payload);
+        render('Akun Berhasil Dibuat', data);
+        setStatus(`Akun ${data.username} berhasil dibuat.`);
+        await loadManagedAccounts();
+        fillAccountForm(data);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnAccUpdate.addEventListener('click', async () => {
+      try {
+        const username = els.accUsername.value.trim();
+        if (!username) throw new Error('Username akun wajib diisi untuk update.');
+        const payload = {
+          nama_lengkap: els.accNama.value.trim(),
+          role: els.accRole.value,
+          is_active: Boolean(els.accActive.checked),
+          permissions: collectPermissionsPayload(),
+        };
+        const password = String(els.accPassword.value || '');
+        if (password) payload.password = password;
+
+        const data = await api(`/api/admin/accounts/${encodeURIComponent(username)}`, 'PATCH', payload);
+        render('Akun Berhasil Diupdate', data);
+        setStatus(`Akun ${data.username} berhasil diupdate.`);
+        await loadManagedAccounts();
+        fillAccountForm(data);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.btnAccList.addEventListener('click', async () => {
+      try {
+        const data = await loadManagedAccounts();
+        render('Daftar Akun Login', data);
+        setStatus(`Memuat ${Array.isArray(data) ? data.length : 0} akun login.`);
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    });
+
+    els.accListWrap.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const username = String(target.getAttribute('data-acc-select') || '').trim();
+      if (!username) return;
+      const account = managedAccounts.find((item) => String(item.username || '') === username);
+      if (!account) return;
+      fillAccountForm(account);
+      setStatus(`Akun ${username} dipilih untuk edit.`);
+    });
+
+    els.accSearch.addEventListener('input', () => {
+      renderManagedAccountList();
+    });
+
+    els.btnAccReset.addEventListener('click', () => {
+      resetAccountForm();
+      setStatus('Form akun direset. Mode siap buat akun baru.');
+    });
+
+    els.btnLogout.addEventListener('click', async () => {
+      try {
+        await api('/api/auth/logout', 'POST', {});
+      } catch {
+        // ignore logout error
+      }
+      localStorage.removeItem('sagara_auth_token');
+      localStorage.removeItem('sagara_auth_role');
+      localStorage.removeItem('sagara_auth_user');
+      window.location.href = '/';
+    });
+
+    (async function boot() {
+      els.jurnalTanggal.value = today();
+      applyRolePermissionDefaults();
+      const allowed = await guardRole();
+      if (!allowed) {
+        showGuard(true);
+        return;
+      }
+      showGuard(false);
+      await loadManagedAccounts();
+      setStatus('Modul akuntansi siap digunakan');
+    })();
+  </script>
+</body>
+</html>

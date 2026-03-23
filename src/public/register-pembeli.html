@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Register Pembeli - SAGARA</title>
+  <style>
+    :root {
+      --bg: #ecfeff;
+      --card: #fefefe;
+      --ink: #083344;
+      --line: #99f6e4;
+      --accent: #0f766e;
+      --accent-2: #134e4a;
+      --error: #b91c1c;
+      --ok: #166534;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 10%, #ccfbf1 0, transparent 35%),
+        radial-gradient(circle at 92% 90%, #a7f3d0 0, transparent 30%),
+        var(--bg);
+    }
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 14px 28px rgba(15, 118, 110, .14);
+    }
+    h1 { margin: 0 0 6px; font-size: 24px; }
+    p { margin: 0 0 14px; font-size: 14px; color: #115e59; }
+    label { display: block; font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+    input, button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #99f6e4;
+      padding: 10px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    input { background: #f0fdfa; }
+    button {
+      border: 0;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.05); }
+    .secondary {
+      background: #fff;
+      color: var(--accent-2);
+      border: 1px solid #99f6e4;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .status { min-height: 20px; margin-bottom: 10px; font-size: 13px; font-weight: 700; }
+    .ok { color: var(--ok); }
+    .err { color: var(--error); }
+    .hint {
+      font-size: 12px;
+      color: #115e59;
+      background: #f0fdfa;
+      border: 1px dashed #99f6e4;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Register Pembeli</h1>
+    <p>Buat akun pembeli agar bisa login dengan username dan password.</p>
+
+    <div class="hint">
+      Username: 3-32 karakter, huruf kecil/angka/titik/strip/underscore. Password minimal 6 karakter.
+    </div>
+
+    <label for="username">Username</label>
+    <input id="username" placeholder="contoh: pembeli.sagara" autocomplete="username">
+
+    <label for="namaLengkap">Nama Lengkap</label>
+    <input id="namaLengkap" placeholder="Nama lengkap" autocomplete="name">
+
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="Minimal 6 karakter" autocomplete="new-password">
+
+    <label for="password2">Ulangi Password</label>
+    <input id="password2" type="password" placeholder="Ketik ulang password" autocomplete="new-password">
+
+    <div id="status" class="status"></div>
+
+    <button id="btnRegister">Buat Akun Pembeli</button>
+    <a class="secondary" href="/login.html?role=buyer">Sudah punya akun? Login</a>
+    <a class="secondary" href="/">Kembali ke Halaman Utama</a>
+  </main>
+
+  <script>
+    const els = {
+      username: document.getElementById('username'),
+      namaLengkap: document.getElementById('namaLengkap'),
+      password: document.getElementById('password'),
+      password2: document.getElementById('password2'),
+      status: document.getElementById('status'),
+      btnRegister: document.getElementById('btnRegister'),
+    };
+
+    function setStatus(msg, ok = true) {
+      els.status.textContent = msg;
+      els.status.className = `status ${ok ? 'ok' : 'err'}`;
+    }
+
+    function persistSession(session) {
+      localStorage.setItem('sagara_auth_token', session.token);
+      localStorage.setItem('sagara_auth_role', session.role);
+      localStorage.setItem('sagara_auth_user', session.username);
+    }
+
+    async function requestJson(path, payload) {
+      const response = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const raw = await response.text();
+      let data = null;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        if (raw.includes('Cannot POST') || raw.includes('<!DOCTYPE html>')) {
+          throw new Error('Fitur register belum aktif di backend yang sedang jalan. Restart server dengan npm run web lalu coba lagi.');
+        }
+        throw new Error('Respon backend tidak valid. Silakan restart server dan coba lagi.');
+      }
+
+      if (!data.ok) {
+        throw new Error(data.error || 'Register gagal.');
+      }
+      return data;
+    }
+
+    async function registerPembeli() {
+      els.btnRegister.disabled = true;
+      try {
+        const username = String(els.username.value || '').trim();
+        const namaLengkap = String(els.namaLengkap.value || '').trim();
+        const password = String(els.password.value || '');
+        const password2 = String(els.password2.value || '');
+
+        if (!username) throw new Error('Username wajib diisi.');
+        if (!namaLengkap) throw new Error('Nama lengkap wajib diisi.');
+        if (!password) throw new Error('Password wajib diisi.');
+        if (password !== password2) throw new Error('Konfirmasi password tidak sama.');
+
+        const payload = await requestJson('/api/auth/register-buyer', {
+          username,
+          nama_lengkap: namaLengkap,
+          password,
+        });
+
+        persistSession(payload.data.session);
+        setStatus('Register berhasil. Mengarahkan ke halaman utama...');
+        window.setTimeout(() => {
+          window.location.href = '/?focus=create';
+        }, 650);
+      } catch (error) {
+        setStatus(error.message || 'Terjadi kesalahan register.', false);
+      } finally {
+        els.btnRegister.disabled = false;
+      }
+    }
+
+    els.btnRegister.addEventListener('click', registerPembeli);
+    [els.username, els.namaLengkap, els.password, els.password2].forEach((input) => {
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') registerPembeli();
+      });
+    });
+  </script>
+</body>
+</html>

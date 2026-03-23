@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laporan - SAGARA</title>
+  <style>
+    :root {
+      --bg: #f6f8ff;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --line: #d9dfeb;
+      --accent: #4338ca;
+      --ok: #166534;
+      --err: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, #e0e7ff 0, transparent 30%),
+        radial-gradient(circle at 100% 100%, #dbeafe 0, transparent 28%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1080px; margin: 20px auto; padding: 0 14px 24px; }
+    .top {
+      background: linear-gradient(135deg, #1e1b4b, #4338ca);
+      color: #fff;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .top h1 { margin: 0; font-size: 20px; }
+    .top p { margin: 4px 0 0; font-size: 12px; opacity: .86; }
+    .top-actions { display: flex; gap: 8px; }
+    .link-btn, .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .link-btn { background: #fff; color: #111827; }
+    .btn { background: var(--accent); color: #fff; }
+
+    .guard {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid #fecaca;
+      color: #7f1d1d;
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+    }
+
+    .card {
+      margin-top: 12px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .report-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0 10px;
+      padding: 8px 10px;
+      border: 1px solid #dbe4ff;
+      border-radius: 10px;
+      background: #f5f8ff;
+    }
+    .report-meta {
+      font-size: 12px;
+      color: #334155;
+      font-weight: 700;
+    }
+    .report-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .preset-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .date-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .date-input {
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      background: #fff;
+      padding: 6px 8px;
+      font-size: 12px;
+      color: #0f172a;
+    }
+    .btn-ghost {
+      background: #e2e8f0;
+      color: #0f172a;
+      border: 0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-preset {
+      background: #dbeafe;
+      color: #1e3a8a;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 7px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-print {
+      background: #0f766e;
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .report-view {
+      min-height: 520px;
+      background: #f8faff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+    }
+    .report-title {
+      margin: 0 0 4px;
+      color: #1e1b4b;
+      font-size: 20px;
+      letter-spacing: 0.2px;
+    }
+    .report-subtitle {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: #475569;
+    }
+    .report-section {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .report-section h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: #0f172a;
+      letter-spacing: 0.3px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+    }
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 560px;
+    }
+    .report-table th,
+    .report-table td {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 7px 8px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .report-table th {
+      color: #1e3a8a;
+      background: #eff6ff;
+      font-weight: 700;
+    }
+    .report-table td.num,
+    .report-table th.num {
+      text-align: right;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .summary-card {
+      background: #fff;
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .summary-card .label {
+      color: #475569;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .summary-card .value {
+      color: #0f172a;
+      font-size: 16px;
+      font-weight: 800;
+    }
+    .status { margin-top: 8px; min-height: 20px; font-size: 13px; font-weight: 700; }
+    .ok { color: var(--ok); }
+    .err { color: var(--err); }
+
+    @media (max-width: 920px) {
+      .actions { grid-template-columns: 1fr 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .report-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .report-controls {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <h1>Laporan</h1>
+        <p>Halaman khusus laporan keuangan dan rekap operasional.</p>
+      </div>
+      <div class="top-actions">
+        <a class="link-btn" href="/">Dashboard</a>
+        <a class="link-btn" href="/penjualan.html">Penjualan</a>
+        <a class="link-btn" href="/pembelian.html">Pembelian</a>
+      </div>
+    </header>
+
+    <section class="guard" id="guardBox">
+      Akses halaman ini membutuhkan login role kasir/admin.
+    </section>
+
+    <section class="card" id="appArea">
+      <div class="actions">
+        <button class="btn" id="btnDaftarAkun">Daftar Akun</button>
+        <button class="btn" id="btnNeracaSaldo">Neraca Saldo</button>
+        <button class="btn" id="btnLabaRugi">Laba Rugi</button>
+        <button class="btn" id="btnNeraca">View Neraca</button>
+        <button class="btn" id="btnRekapJual">Rekap Penjualan</button>
+        <button class="btn" id="btnRekapBeli">Rekap Pembelian</button>
+        <button class="btn" id="btnRekapWeb">Rekap Website</button>
+      </div>
+      <div class="report-toolbar">
+        <div id="reportMeta" class="report-meta">Belum ada laporan dipilih</div>
+        <div class="report-controls">
+          <div class="preset-group">
+            <button id="btnPresetToday" class="btn-preset">Hari Ini</button>
+            <button id="btnPreset7" class="btn-preset">7 Hari</button>
+            <button id="btnPresetMonth" class="btn-preset">Bulan Ini</button>
+            <button id="btnPresetYear" class="btn-preset">Tahun Ini</button>
+          </div>
+          <span class="date-label">Dari</span>
+          <input type="date" id="rangeFrom" class="date-input">
+          <span class="date-label">Sampai</span>
+          <input type="date" id="rangeTo" class="date-input">
+          <button id="btnRangeClear" class="btn-ghost">Reset</button>
+          <button id="btnPrint" class="btn-print">Cetak / Simpan PDF</button>
+        </div>
+      </div>
+      <div id="reportView" class="report-view"></div>
+      <div id="status" class="status"></div>
+    </section>
+  </div>
+
+  <script>
+    let token = localStorage.getItem('sagara_auth_token') || '';
+    let activeReportTitle = '';
+    let activeReportKey = '';
+
+    const els = {
+      guardBox: document.getElementById('guardBox'),
+      appArea: document.getElementById('appArea'),
+      reportView: document.getElementById('reportView'),
+      reportMeta: document.getElementById('reportMeta'),
+      status: document.getElementById('status'),
+      btnDaftarAkun: document.getElementById('btnDaftarAkun'),
+      btnNeracaSaldo: document.getElementById('btnNeracaSaldo'),
+      btnLabaRugi: document.getElementById('btnLabaRugi'),
+      btnNeraca: document.getElementById('btnNeraca'),
+      btnRekapJual: document.getElementById('btnRekapJual'),
+      btnRekapBeli: document.getElementById('btnRekapBeli'),
+      btnRekapWeb: document.getElementById('btnRekapWeb'),
+      rangeFrom: document.getElementById('rangeFrom'),
+      rangeTo: document.getElementById('rangeTo'),
+      btnRangeClear: document.getElementById('btnRangeClear'),
+      btnPresetToday: document.getElementById('btnPresetToday'),
+      btnPreset7: document.getElementById('btnPreset7'),
+      btnPresetMonth: document.getElementById('btnPresetMonth'),
+      btnPresetYear: document.getElementById('btnPresetYear'),
+      btnPrint: document.getElementById('btnPrint'),
+    };
+
+    function setStatus(msg, ok = true) {
+      els.status.textContent = msg;
+      els.status.className = `status ${ok ? 'ok' : 'err'}`;
+    }
+
+    function showGuard(show) {
+      els.guardBox.style.display = show ? 'block' : 'none';
+      els.appArea.style.display = show ? 'none' : 'block';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function fmtNumber(value) {
+      return Number(value || 0).toLocaleString('id-ID', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    }
+
+    function fmtInt(value) {
+      return Number(value || 0).toLocaleString('id-ID', {
+        maximumFractionDigits: 0,
+      });
+    }
+
+    function formatDate(value) {
+      if (!value) return '';
+      const d = new Date(`${value}T00:00:00`);
+      if (Number.isNaN(d.getTime())) return '';
+      return d.toLocaleDateString('id-ID');
+    }
+
+    function toIsoDate(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getDateRange() {
+      return {
+        from: String(els.rangeFrom.value || '').trim(),
+        to: String(els.rangeTo.value || '').trim(),
+      };
+    }
+
+    function getDateRangeQuery() {
+      const range = getDateRange();
+      const params = new URLSearchParams();
+      if (range.from) params.set('from', range.from);
+      if (range.to) params.set('to', range.to);
+      const qs = params.toString();
+      return qs ? `?${qs}` : '';
+    }
+
+    function periodeLabel(periode) {
+      if (!periode) return 'Semua periode';
+      const from = formatDate(periode.from);
+      const to = formatDate(periode.to);
+      if (from && to) return `${from} - ${to}`;
+      if (from) return `Mulai ${from}`;
+      if (to) return `Sampai ${to}`;
+      return 'Semua periode';
+    }
+
+    function applyRange(from, to, label) {
+      els.rangeFrom.value = from || '';
+      els.rangeTo.value = to || '';
+      setStatus(`Periode aktif: ${label}`);
+      void refreshActiveRecapReport(true);
+    }
+
+    function setPresetToday() {
+      const now = new Date();
+      const date = toIsoDate(now);
+      applyRange(date, date, 'Hari Ini');
+    }
+
+    function setPreset7Days() {
+      const now = new Date();
+      const end = toIsoDate(now);
+      const startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 6);
+      const start = toIsoDate(startDate);
+      applyRange(start, end, '7 Hari Terakhir');
+    }
+
+    function setPresetMonth() {
+      const now = new Date();
+      const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      applyRange(toIsoDate(startDate), toIsoDate(now), 'Bulan Ini');
+    }
+
+    function setPresetYear() {
+      const now = new Date();
+      const startDate = new Date(now.getFullYear(), 0, 1);
+      applyRange(toIsoDate(startDate), toIsoDate(now), 'Tahun Ini');
+    }
+
+    function renderTable(headers, rows, numericCols = []) {
+      const head = headers
+        .map((h, i) => `<th class="${numericCols.includes(i) ? 'num' : ''}">${escapeHtml(h)}</th>`)
+        .join('');
+      const body = rows.length
+        ? rows.map((row) => `<tr>${row.map((c, i) => `<td class="${numericCols.includes(i) ? 'num' : ''}">${escapeHtml(c)}</td>`).join('')}</tr>`).join('')
+        : `<tr><td colspan="${headers.length}">Tidak ada data</td></tr>`;
+      return `
+        <div class="table-wrap">
+          <table class="report-table">
+            <thead><tr>${head}</tr></thead>
+            <tbody>${body}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderReport(title, subtitle, sections = [], summaries = []) {
+      activeReportTitle = title;
+      els.reportMeta.textContent = `${title} • ${new Date().toLocaleString('id-ID')}`;
+
+      const summaryHtml = summaries.length
+        ? `<div class="summary-grid">${summaries.map((s) => `
+            <div class="summary-card">
+              <div class="label">${escapeHtml(s.label)}</div>
+              <div class="value">${escapeHtml(s.value)}</div>
+            </div>
+          `).join('')}</div>`
+        : '';
+
+      const sectionHtml = sections.map((section) => `
+        <section class="report-section">
+          <h3>${escapeHtml(section.title)}</h3>
+          ${renderTable(section.headers, section.rows, section.numericCols || [])}
+        </section>
+      `).join('');
+
+      els.reportView.innerHTML = `
+        <h2 class="report-title">${escapeHtml(title)}</h2>
+        <p class="report-subtitle">${escapeHtml(subtitle)}</p>
+        ${summaryHtml}
+        ${sectionHtml}
+      `;
+    }
+
+    function getPrintDocument() {
+      return `
+        <!doctype html>
+        <html lang="id">
+        <head>
+          <meta charset="utf-8">
+          <title>${escapeHtml(activeReportTitle || 'Laporan SAGARA')}</title>
+          <style>
+            @page { size: A4 portrait; margin: 12mm; }
+            body { font-family: "Trebuchet MS", "Segoe UI", sans-serif; color: #0f172a; margin: 0; }
+            .print-head { margin-bottom: 10px; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; }
+            .print-head h1 { margin: 0; font-size: 20px; color: #1e3a8a; }
+            .print-head p { margin: 4px 0 0; font-size: 12px; color: #334155; }
+            .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 8px; }
+            .summary-card { border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; }
+            .summary-card .label { font-size: 11px; color: #475569; }
+            .summary-card .value { font-size: 14px; font-weight: 700; margin-top: 3px; }
+            .report-section { border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+            .report-section h3 { margin: 0 0 6px; font-size: 13px; }
+            .report-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+            .report-table th, .report-table td { border: 1px solid #cbd5e1; padding: 5px; }
+            .report-table th { background: #eff6ff; text-align: left; }
+            .report-table th.num, .report-table td.num { text-align: right; }
+          </style>
+        </head>
+        <body>
+          <header class="print-head">
+            <h1>SAGARA - ${escapeHtml(activeReportTitle || 'Laporan')}</h1>
+            <p>Dicetak pada ${escapeHtml(new Date().toLocaleString('id-ID'))}</p>
+          </header>
+          ${els.reportView.innerHTML}
+        </body>
+        </html>
+      `;
+    }
+
+    function printCurrentReport() {
+      if (!activeReportTitle || !els.reportView.innerHTML.trim()) {
+        setStatus('Pilih laporan terlebih dahulu sebelum mencetak.', false);
+        return;
+      }
+
+      const popup = window.open('', '_blank', 'noopener,noreferrer');
+      if (!popup) {
+        setStatus('Popup diblokir browser. Izinkan popup untuk mencetak.', false);
+        return;
+      }
+
+      popup.document.open();
+      popup.document.write(getPrintDocument());
+      popup.document.close();
+      popup.focus();
+      popup.print();
+    }
+
+    function renderDaftarAkun(rows) {
+      renderReport(
+        'Daftar Akun',
+        'Chart of accounts aktif',
+        [{
+          title: 'Master Akun',
+          headers: ['Kode', 'Nama', 'Jenis', 'Saldo Normal', 'Saldo'],
+          rows: rows.map((a) => [
+            a.kode || '-',
+            a.nama || '-',
+            a.jenis || '-',
+            a.saldo_normal || '-',
+            fmtNumber(a.saldo),
+          ]),
+          numericCols: [4],
+        }],
+        [{ label: 'Total Akun', value: fmtInt(rows.length) }]
+      );
+    }
+
+    function renderNeracaSaldo(data) {
+      renderReport(
+        'Neraca Saldo',
+        'Posisi saldo debit-kredit per akun',
+        [{
+          title: 'Detail Neraca Saldo',
+          headers: ['Kode', 'Nama', 'Jenis', 'Debit', 'Kredit'],
+          rows: (data.baris || []).map((r) => [
+            r.kode || '-',
+            r.nama || '-',
+            r.jenis || '-',
+            fmtNumber(r.debit),
+            fmtNumber(r.kredit),
+          ]),
+          numericCols: [3, 4],
+        }],
+        [
+          { label: 'Total Debit', value: fmtNumber(data.total_debit) },
+          { label: 'Total Kredit', value: fmtNumber(data.total_kredit) },
+          { label: 'Status', value: data.seimbang ? 'SEIMBANG' : 'TIDAK SEIMBANG' },
+        ]
+      );
+    }
+
+    function renderLabaRugi(data) {
+      renderReport(
+        'Laba Rugi',
+        'Ringkasan performa pendapatan dan beban',
+        [
+          {
+            title: 'Pendapatan',
+            headers: ['Kode', 'Nama', 'Jumlah'],
+            rows: (data.pendapatan || []).map((r) => [r.kode || '-', r.nama || '-', fmtNumber(r.jumlah)]),
+            numericCols: [2],
+          },
+          {
+            title: 'Beban',
+            headers: ['Kode', 'Nama', 'Jumlah'],
+            rows: (data.beban || []).map((r) => [r.kode || '-', r.nama || '-', fmtNumber(r.jumlah)]),
+            numericCols: [2],
+          },
+        ],
+        [
+          { label: 'Total Pendapatan', value: fmtNumber(data.total_pendapatan) },
+          { label: 'Total Beban', value: fmtNumber(data.total_beban) },
+          { label: 'Laba Bersih', value: fmtNumber(data.laba_bersih) },
+        ]
+      );
+    }
+
+    function renderNeraca(data) {
+      renderReport(
+        'Neraca',
+        'Posisi aset, kewajiban, dan ekuitas',
+        [
+          {
+            title: 'Aset',
+            headers: ['Kode', 'Nama', 'Jumlah'],
+            rows: (data.aset || []).map((r) => [r.kode || '-', r.nama || '-', fmtNumber(r.jumlah)]),
+            numericCols: [2],
+          },
+          {
+            title: 'Kewajiban',
+            headers: ['Kode', 'Nama', 'Jumlah'],
+            rows: (data.kewajiban || []).map((r) => [r.kode || '-', r.nama || '-', fmtNumber(r.jumlah)]),
+            numericCols: [2],
+          },
+          {
+            title: 'Ekuitas',
+            headers: ['Kode', 'Nama', 'Jumlah'],
+            rows: (data.ekuitas || []).map((r) => [r.kode || '-', r.nama || '-', fmtNumber(r.jumlah)]),
+            numericCols: [2],
+          },
+        ],
+        [
+          { label: 'Total Aset', value: fmtNumber(data.total_aset) },
+          { label: 'Total Kewajiban', value: fmtNumber(data.total_kewajiban) },
+          { label: 'Total Ekuitas', value: fmtNumber(data.total_ekuitas) },
+          { label: 'Status', value: data.seimbang ? 'SEIMBANG' : 'TIDAK SEIMBANG' },
+        ]
+      );
+    }
+
+    function renderRekapPenjualan(data) {
+      renderReport(
+        'Rekap Penjualan',
+        `Analisis performa penjualan per pelanggan dan produk (${periodeLabel(data.periode)})`,
+        [
+          {
+            title: 'Per Pelanggan',
+            headers: ['Pelanggan', 'Jumlah Faktur', 'Total'],
+            rows: (data.per_pelanggan || []).map((r) => [
+              r.pelanggan || '-',
+              fmtInt(r.jumlah_faktur),
+              fmtNumber(r.total),
+            ]),
+            numericCols: [1, 2],
+          },
+          {
+            title: 'Per Produk',
+            headers: ['Kode', 'Nama', 'Qty', 'Total Nilai'],
+            rows: (data.per_produk || []).map((r) => [
+              r.kode || '-',
+              r.nama || '-',
+              fmtInt(r.total_qty),
+              fmtNumber(r.total_nilai),
+            ]),
+            numericCols: [2, 3],
+          },
+        ]
+      );
+    }
+
+    function renderRekapPembelian(data) {
+      renderReport(
+        'Rekap Pembelian',
+        `Analisis pengadaan per platform, produk, dan pemasok (${periodeLabel(data.periode)})`,
+        [
+          {
+            title: 'Per Platform',
+            headers: ['Platform', 'Jumlah Order', 'Total Bayar'],
+            rows: (data.per_platform || []).map((r) => [
+              r.platform || '-',
+              fmtInt(r.jumlah_order),
+              fmtNumber(r.total_bayar),
+            ]),
+            numericCols: [1, 2],
+          },
+          {
+            title: 'Per Produk',
+            headers: ['Kode', 'Nama', 'Qty', 'Total Nilai'],
+            rows: (data.per_produk || []).map((r) => [
+              r.kode || '-',
+              r.nama || '-',
+              fmtInt(r.total_qty),
+              fmtNumber(r.total_nilai),
+            ]),
+            numericCols: [2, 3],
+          },
+          {
+            title: 'Per Pemasok',
+            headers: ['Pemasok', 'Platform', 'Jumlah Order', 'Total'],
+            rows: (data.per_pemasok || []).map((r) => [
+              r.pemasok || '-',
+              r.platform || '-',
+              fmtInt(r.jumlah_order),
+              fmtNumber(r.total),
+            ]),
+            numericCols: [2, 3],
+          },
+        ]
+      );
+    }
+
+    function renderRekapWebsite(data) {
+      renderReport(
+        'Rekap Penjualan Website',
+        `Analisis order website berdasarkan status, metode bayar, produk, dan pelanggan (${periodeLabel(data.periode)})`,
+        [
+          {
+            title: 'Per Status',
+            headers: ['Status', 'Jumlah Order', 'Total Bayar'],
+            rows: (data.per_status || []).map((r) => [
+              r.status || '-',
+              fmtInt(r.jumlah_order),
+              fmtNumber(r.total_bayar),
+            ]),
+            numericCols: [1, 2],
+          },
+          {
+            title: 'Per Metode Bayar',
+            headers: ['Metode', 'Jumlah Order', 'Total Bayar'],
+            rows: (data.per_metode || []).map((r) => [
+              r.metode_bayar || '-',
+              fmtInt(r.jumlah_order),
+              fmtNumber(r.total_bayar),
+            ]),
+            numericCols: [1, 2],
+          },
+          {
+            title: 'Per Produk',
+            headers: ['Kode', 'Nama', 'Qty', 'Total Nilai'],
+            rows: (data.per_produk || []).map((r) => [
+              r.kode || '-',
+              r.nama || '-',
+              fmtInt(r.total_qty),
+              fmtNumber(r.total_nilai),
+            ]),
+            numericCols: [2, 3],
+          },
+          {
+            title: 'Per Pelanggan',
+            headers: ['Pelanggan', 'Jumlah Order', 'Total'],
+            rows: (data.per_pelanggan || []).map((r) => [
+              r.pelanggan || '-',
+              fmtInt(r.jumlah_order),
+              fmtNumber(r.total),
+            ]),
+            numericCols: [1, 2],
+          },
+        ]
+      );
+    }
+
+    async function api(path, method = 'GET', body) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const r = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+      const data = await r.json();
+      if (!data.ok) throw new Error(data.error || 'Request gagal');
+      return data.data;
+    }
+
+    function withDateRange(path) {
+      return `${path}${getDateRangeQuery()}`;
+    }
+
+    function isRangeValid() {
+      const { from, to } = getDateRange();
+      if (from && to && from > to) {
+        setStatus('Tanggal "Dari" tidak boleh lebih besar dari "Sampai".', false);
+        return false;
+      }
+      return true;
+    }
+
+    function isRecapReport(key) {
+      return ['rekapJual', 'rekapBeli', 'rekapWeb'].includes(key);
+    }
+
+    async function loadReport(key, options = {}) {
+      const { silent = false } = options;
+      activeReportKey = key;
+      if (!silent) {
+        setStatus('Memuat laporan...');
+      }
+
+      if (key === 'daftarAkun') {
+        renderDaftarAkun(await api('/api/akuntansi/akun'));
+      } else if (key === 'neracaSaldo') {
+        renderNeracaSaldo(await api('/api/laporan/neraca-saldo'));
+      } else if (key === 'labaRugi') {
+        renderLabaRugi(await api('/api/laporan/laba-rugi'));
+      } else if (key === 'neraca') {
+        renderNeraca(await api('/api/laporan/neraca'));
+      } else if (key === 'rekapJual') {
+        if (!isRangeValid()) return;
+        renderRekapPenjualan(await api(withDateRange('/api/laporan/rekap-penjualan')));
+      } else if (key === 'rekapBeli') {
+        if (!isRangeValid()) return;
+        renderRekapPembelian(await api(withDateRange('/api/laporan/rekap-pembelian')));
+      } else if (key === 'rekapWeb') {
+        if (!isRangeValid()) return;
+        renderRekapWebsite(await api(withDateRange('/api/laporan/rekap-penjualan-website')));
+      }
+
+      if (!silent) {
+        setStatus('Laporan berhasil diperbarui.');
+      }
+    }
+
+    async function refreshActiveRecapReport(showMessage = false) {
+      if (!isRecapReport(activeReportKey)) return;
+      if (!isRangeValid()) return;
+
+      try {
+        await loadReport(activeReportKey, { silent: true });
+        if (showMessage) {
+          setStatus('Laporan rekap diperbarui sesuai periode aktif.');
+        }
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    }
+
+    async function guardRole() {
+      if (!token) return false;
+      try {
+        const me = await api('/api/auth/me');
+        return me.role === 'cashier' || me.role === 'admin';
+      } catch {
+        return false;
+      }
+    }
+
+    els.btnDaftarAkun.addEventListener('click', async () => {
+      try { await loadReport('daftarAkun'); }
+      catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnNeracaSaldo.addEventListener('click', async () => {
+      try { await loadReport('neracaSaldo'); }
+      catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnLabaRugi.addEventListener('click', async () => {
+      try { await loadReport('labaRugi'); }
+      catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnNeraca.addEventListener('click', async () => {
+      try { await loadReport('neraca'); }
+      catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnRekapJual.addEventListener('click', async () => {
+      try { await loadReport('rekapJual'); }
+      catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnRekapBeli.addEventListener('click', async () => {
+      try { await loadReport('rekapBeli'); }
+      catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnRekapWeb.addEventListener('click', async () => {
+      try { await loadReport('rekapWeb'); }
+      catch (error) { setStatus(error.message, false); }
+    });
+
+    els.btnRangeClear.addEventListener('click', () => {
+      els.rangeFrom.value = '';
+      els.rangeTo.value = '';
+      setStatus('Filter periode direset ke semua tanggal.');
+      void refreshActiveRecapReport(true);
+    });
+
+    els.rangeFrom.addEventListener('change', () => {
+      void refreshActiveRecapReport(true);
+    });
+
+    els.rangeTo.addEventListener('change', () => {
+      void refreshActiveRecapReport(true);
+    });
+
+    els.btnPresetToday.addEventListener('click', setPresetToday);
+    els.btnPreset7.addEventListener('click', setPreset7Days);
+    els.btnPresetMonth.addEventListener('click', setPresetMonth);
+    els.btnPresetYear.addEventListener('click', setPresetYear);
+
+    els.btnPrint.addEventListener('click', printCurrentReport);
+
+    (async function boot() {
+      const allowed = await guardRole();
+      if (!allowed) {
+        showGuard(true);
+        return;
+      }
+      showGuard(false);
+      setStatus('Laporan siap digunakan');
+      try {
+        await loadReport('neracaSaldo', { silent: true });
+      } catch (error) {
+        setStatus(error.message, false);
+      }
+    })();
+  </script>
+</body>
+</html>
