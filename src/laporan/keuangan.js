@@ -149,7 +149,7 @@ function laporanLabaRugi(dbPath = DB_PATH) {
 function neraca(dbPath = DB_PATH) {
   const db = getConnection(dbPath);
   const rows = db.prepare(
-    "SELECT kode, nama, jenis, saldo FROM akun WHERE jenis IN ('Aset','Kewajiban','Ekuitas') ORDER BY kode"
+    "SELECT kode, nama, jenis, saldo_normal, saldo FROM akun WHERE jenis IN ('Aset','Kewajiban','Ekuitas') ORDER BY kode"
   ).all();
   db.close();
 
@@ -161,16 +161,17 @@ function neraca(dbPath = DB_PATH) {
   let totalEkuitas   = 0;
 
   for (const r of rows) {
-    const entry = { kode: r.kode, nama: r.nama, jumlah: Math.round(r.saldo * 100) / 100 };
+    const signedSaldo = r.saldo_normal === 'Debit' ? r.saldo : -r.saldo;
+    const entry = { kode: r.kode, nama: r.nama, jumlah: Math.round(signedSaldo * 100) / 100 };
     if (r.jenis === 'Aset') {
       aset.push(entry);
-      totalAset += r.saldo;
+      totalAset += signedSaldo;
     } else if (r.jenis === 'Kewajiban') {
       kewajiban.push(entry);
-      totalKewajiban += r.saldo;
+      totalKewajiban += signedSaldo;
     } else {
       ekuitas.push(entry);
-      totalEkuitas += r.saldo;
+      totalEkuitas += signedSaldo;
     }
   }
 
